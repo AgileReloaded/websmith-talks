@@ -45,7 +45,7 @@ class CommandTests(unittest.TestCase):
         return result
 
     def install(self):
-        return self.run_command("install", "--source", self.source, "--site-id", "example", "--recipient", "editor@example.test")
+        return self.run_command("install", "--source", self.source, "--site-id", "example", "--site-name", "Example", "--recipient", "editor@example.test")
 
     def test_install_and_update_from_subdirectory_preserve_preferences_and_documents(self):
         self.assertTrue(self.install()["changed"])
@@ -82,7 +82,7 @@ class CommandTests(unittest.TestCase):
         self.install()
         other = self.directory / "other-project"
         other.mkdir()
-        result = self.run_command("install", "--source", self.source, "--site-id", "other", cwd=other)
+        result = self.run_command("install", "--source", self.source, "--site-id", "other", "--site-name", "Other", cwd=other)
         self.assertEqual(result["site"]["id"], "other")
         self.assertEqual(self.run_command("status", cwd=other)["site"]["id"], "other")
         self.assertEqual(self.run_command("status", "--root", self.project, cwd=other)["site"]["id"], "example")
@@ -153,7 +153,7 @@ class CommandTests(unittest.TestCase):
              mock.patch("manage.download", side_effect=self.release_download("0.8.0a1")) as download, \
              mock.patch("manage.source_install", side_effect=AssertionError("Implicit local source")) as local, \
              redirect_stdout(output):
-            self.assertEqual(websmith_talks.main(["--root", str(self.project), "install", "--site-id", "example"]), 0)
+            self.assertEqual(websmith_talks.main(["--root", str(self.project), "install", "--site-id", "example", "--site-name", "Example"]), 0)
         self.assertEqual(download.call_count, 2)
         local.assert_not_called()
         metadata = json.loads((self.project / ".websmith-talks/install.json").read_text())

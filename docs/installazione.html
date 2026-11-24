@@ -19,7 +19,7 @@
 <button id="copy" disabled>Copia comando</button>
 <p>Dopo il primo setup, con <code>~/.local/bin</code> nel PATH, puoi usare direttamente <code>websmith-talks install</code> in una nuova cartella e <code>websmith-talks update</code> in un progetto esistente. Il sito viene chiesto solo alla prima installazione.</p>
 <p><small>L’installazione crea la cartella websmith-talks nella tua cartella personale. Non invia email.</small></p>
-<p>Il setup chiede il <code>site.id</code> del sito Websmith. Copia esattamente il valore dal suo <code>websmith.yaml</code>. Nome e indirizzo sono facoltativi. Per un altro sito usa una cartella separata; gli aggiornamenti mantengono l’associazione esistente.</p>
+<p>Il setup chiede l’identificativo <code>site.id</code> e il nome del sito. Copia l’ID esattamente dal <code>websmith.yaml</code> di Websmith; per il nome puoi premere Invio e usare lo stesso valore. Se li passi come parametri, non vengono richiesti. L’indirizzo è facoltativo. Per un altro sito usa una cartella separata; gli aggiornamenti mantengono l’associazione esistente senza ripetere le domande.</p>
 <p>Per uso non interattivo puoi scaricare lo script e passare <code>--site-id ID</code>, <code>--root CARTELLA</code>, <code>--site-name NOME</code>, <code>--site-url URL</code> e <code>--recipient EMAIL</code>. Le consegne includono il tag <code>[websmith:site.id]</code> nell’oggetto.</p>
 <h2>2. Collega Gmail per le consegne email</h2>
 <p>Se vuoi consegnare i documenti via email, collega il tuo account Google e rendi disponibile il connettore Gmail nella chat. L’assistente userà send_email per la consegna. Per preparare e salvare una pagina con Page non serve Gmail. Non servono password o parametri di connessione in websmith-talks.</p>

@@ -2,7 +2,7 @@
 
 websmith-talks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
 **Story** raccoglie case histories e si invoca con `$story`; **Page** prepara
-pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a1.
+pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a2.
 Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
 I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
@@ -109,14 +109,16 @@ launcher, skill, configurazione e istruzioni precedenti.
 
 ## Verifiche e limiti
 
-Il runtime 0.8.0a1 prepara la consegna per `send_email` del connettore Gmail.
+Il runtime 0.8.0a2 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
 nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
 Le nuove installazioni hanno il destinatario vuoto: la consegna richiede
 `configure --recipient INDIRIZZO`, su indicazione della persona. Gli aggiornamenti
 conservano gli indirizzi esistenti, compresi quelli delle installazioni TRTalks.
 Il setup richiede `--site-id` (o la risposta nel terminale), uguale a `site.id`
-del `websmith.yaml` di Websmith. Nome e URL sono facoltativi. La configurazione
+del `websmith.yaml` di Websmith. Nel terminale chiede anche il nome se non è
+stato fornito; Invio accetta l'ID come nome. Negli aggiornamenti il sito già
+configurato viene riusato senza domande. Nome e URL sono facoltativi. La configurazione
 locale contiene `site: {id, name, base_url}`; i metadati di installazione
 conservano l'associazione. Un ID diverso in configure, setup o update blocca
 l'operazione. Per un altro sito occorre un'altra cartella.

@@ -8,7 +8,7 @@ domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione di sviluppo **0.8.0a1**: comandi `websmith-talks install` e
+Versione di sviluppo **0.8.0a2**: comandi `websmith-talks install` e
 `websmith-talks update`, un sito per installazione e tag email
 `[websmith:site.id]` compatibile con Websmith. Il comando è `websmith-talks`,
 le skill sono `story` e `page` e lo stato è in `.websmith-talks`.
@@ -46,7 +46,8 @@ websmith-talks install
 websmith-talks update
 ```
 
-`install` usa la cartella corrente e chiede il `site.id` nel terminale.
+`install` usa la cartella corrente e chiede nel terminale il `site.id` e il
+nome del sito. I valori forniti con parametri o variabili non vengono richiesti.
 È possibile indicare `--site-id`, `--site-name`, `--site-url`, `--recipient` e
 `--root` direttamente. `update` ritrova il progetto anche dalle sottocartelle.
 Si possono mantenere installazioni separate per siti diversi.
@@ -95,7 +96,8 @@ Per preparare una pagina web:
 Durante il setup indicare lo stesso `site.id` presente nel `websmith.yaml`
 del sito gestito da Websmith. L'ID viene copiato esattamente: lettere minuscole,
 numeri e trattini, senza ricavarlo dal nome o dall'indirizzo del sito.
-Il setup lo chiede nel terminale se non è già configurato. Per un'installazione
+Il setup chiede l'ID e il nome nel terminale se il sito non è già configurato;
+premendo Invio sul nome si può usare l'ID anche come nome. Per un'installazione
 non interattiva:
 
 ```bash

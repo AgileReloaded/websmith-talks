@@ -634,14 +634,25 @@ def main(argv=None):
         site = None
         if args.command != "uninstall":
             current_config = installation_config(installation_state(args.root.expanduser().resolve()))
-            if (getattr(args, "interactive", False) and args.site_id is None
-                    and current_config["site"] is None):
+            if (getattr(args, "interactive", False) and current_config["site"] is None
+                    and (args.site_id is None or args.site_name is None)):
                 try:
                     with open("/dev/tty", "r", encoding="utf-8") as reader, open("/dev/tty", "w", encoding="utf-8", buffering=1) as writer:
-                        writer.write("site.id del sito Websmith da associare: ")
-                        args.site_id = reader.readline().strip()
+                        if args.site_id is None:
+                            writer.write("Identificativo del sito da usare (site.id di Websmith): ")
+                            answer = reader.readline()
+                            if not answer:
+                                raise ValueError("Installazione interrotta: identificativo del sito non ricevuto")
+                            args.site_id = answer.strip()
+                        if args.site_name is None:
+                            writer.write("Nome del sito [" + args.site_id + "]: ")
+                            answer = reader.readline()
+                            if not answer:
+                                raise ValueError("Installazione interrotta: nome del sito non ricevuto")
+                            args.site_name = answer.strip() or args.site_id
                 except OSError:
-                    raise ValueError("Specificare --site-id oppure WEBSMITH_TALKS_SITE_ID per l'installazione non interattiva")
+                    if args.site_id is None:
+                        raise ValueError("Specificare --site-id oppure WEBSMITH_TALKS_SITE_ID per l'installazione non interattiva")
             site = requested_site(current_config, args.site_id, args.site_name, args.site_url)
         if args.command == "uninstall":
             result = uninstall(args.root)

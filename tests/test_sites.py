@@ -167,12 +167,49 @@ class SiteTests(unittest.TestCase):
         archive.write_bytes(self.raw)
         arguments = ["install", "--root", str(self.root), "--archive", str(archive),
                      "--sha256", self.sha, "--interactive", "--upgrade"]
-        with mock.patch("manage.open", create=True, side_effect=[io.StringIO("example\n"), io.StringIO()]), redirect_stdout(io.StringIO()):
+        with mock.patch("manage.open", create=True, side_effect=[io.StringIO("example\nExample website\n"), io.StringIO()]), redirect_stdout(io.StringIO()):
             self.assertEqual(manage.main(arguments), 0)
         self.assertEqual(load_config(self.root)["site"]["id"], "example")
+        self.assertEqual(load_config(self.root)["site"]["name"], "Example website")
         with mock.patch("manage.open", create=True) as terminal, redirect_stdout(io.StringIO()):
             self.assertEqual(manage.main(arguments), 0)
             terminal.assert_not_called()
+
+    def test_interactive_setup_asks_for_name_even_when_id_is_already_supplied(self):
+        archive = self.root.parent / "package.zip"
+        archive.write_bytes(self.raw)
+        arguments = ["install", "--root", str(self.root), "--archive", str(archive),
+                     "--sha256", self.sha, "--interactive", "--site-id", "example"]
+        with mock.patch("manage.open", create=True, side_effect=[io.StringIO("Named website\n"), io.StringIO()]), redirect_stdout(io.StringIO()):
+            self.assertEqual(manage.main(arguments), 0)
+        self.assertEqual(load_config(self.root)["site"]["name"], "Named website")
+
+    def test_interactive_setup_accepts_default_name_on_enter(self):
+        archive = self.root.parent / "package.zip"
+        archive.write_bytes(self.raw)
+        arguments = ["install", "--root", str(self.root), "--archive", str(archive),
+                     "--sha256", self.sha, "--interactive"]
+        with mock.patch("manage.open", create=True, side_effect=[io.StringIO("example\n\n"), io.StringIO()]), redirect_stdout(io.StringIO()):
+            self.assertEqual(manage.main(arguments), 0)
+        self.assertEqual(load_config(self.root)["site"]["name"], "example")
+
+    def test_interrupted_name_prompt_does_not_create_an_installation(self):
+        archive = self.root.parent / "package.zip"
+        archive.write_bytes(self.raw)
+        arguments = ["install", "--root", str(self.root), "--archive", str(archive),
+                     "--sha256", self.sha, "--interactive"]
+        with mock.patch("manage.open", create=True, side_effect=[io.StringIO("example\n"), io.StringIO()]), redirect_stdout(io.StringIO()):
+            self.assertEqual(manage.main(arguments), 1)
+        self.assertFalse(self.root.exists())
+
+    def test_noninteractive_setup_with_explicit_id_uses_it_as_default_name(self):
+        archive = self.root.parent / "package.zip"
+        archive.write_bytes(self.raw)
+        arguments = ["install", "--root", str(self.root), "--archive", str(archive),
+                     "--sha256", self.sha, "--interactive", "--site-id", "example"]
+        with mock.patch("manage.open", create=True, side_effect=OSError("No terminal")), redirect_stdout(io.StringIO()):
+            self.assertEqual(manage.main(arguments), 0)
+        self.assertEqual(load_config(self.root)["site"]["name"], "example")
 
 
 if __name__ == "__main__":
