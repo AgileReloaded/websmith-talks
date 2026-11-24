@@ -14,13 +14,21 @@ dall'agente con la chiamata reale al tool Gmail, nello stesso flusso.
 
 `.websmith-talks/config.local.json` contiene `schema:2`, `transport:"gmail"`,
 `recipient` (inizialmente vuoto), `sender_name`, `reply_to`
-e `send_enabled` (inizialmente `true`). Ogni documento richiede comunque la
+e `send_enabled` (inizialmente `true`), oltre a `site: {id, name, base_url}`.
+Ogni documento richiede comunque la
 propria autorizzazione alla consegna. Le preferenze esistenti restano valide.
-Non esiste una casella o un sito predefinito. Configurare il destinatario su
+Non esiste una casella predefinita. Il setup associa esattamente un sito con
+lo stesso `site.id` di Websmith, verificato nei metadati dell'installazione.
+Nome e URL sono facoltativi; non generare un ID dal dominio.
+Per vecchie installazioni senza sito usare una sola volta
+`configure --site-id ID`. Per un altro sito usare un'installazione separata.
+Configurare il destinatario su
 indicazione della persona prima della consegna; `status` espone
 `recipient_configured:false` finché manca. `send` e `dry-run` si interrompono
 senza creare tentativi quando il destinatario non è configurato. Le conversazioni,
 il salvataggio locale e `probe` restano disponibili.
+Se manca il sito, `status` espone `site_configured:false` e la preparazione
+della consegna si interrompe. Se presente, espone anche `email_tag`.
 Il collegamento Google è gestito dall'app: nessun host, porta, password, token
 locale o procedura `init`. L'aggiornamento elimina i precedenti parametri di
 connessione, conservando destinatario, preferenze e ricevute.
@@ -36,6 +44,9 @@ verificato il collegamento Gmail. L'agente controlla la disponibilità di
 quindi restituisce `tool` e `tool_arguments` per l'agente. Non spedisce email.
 Il tool Gmail riceve `to`, `subject`, `payload` e `attachment_files`, oltre a
 `reply_to` se presente. Non sostituire il mittente dell'account autenticato.
+L'oggetto inizia con un solo `[websmith:site.id]`, compatibile con il filtro
+inbox di Websmith. Mantenere l'oggetto restituito dal runtime. La casella può
+ricevere documenti di più siti: il tag determina a quale sito appartengono.
 
 L'allegato deve essere accessibile al connettore. Se il percorso sul computer
 non è accessibile al tool, trasferire la copia approvata attraverso il canale

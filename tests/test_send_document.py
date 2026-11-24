@@ -17,7 +17,7 @@ class GmailDeliveryTests(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.config = self.root / '.websmith-talks/config.local.json'
         self.recipient = 'editor@example.test'
-        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient=self.recipient))
+        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient=self.recipient, site={"id": "example"}))
         self.draft = self.root / 'story.md'
         self.raw = '# Resoconto\r\n\r\nCittà, attività e risultati.\r\n'.encode('utf-8')
         self.draft.write_bytes(self.raw)
@@ -56,7 +56,7 @@ class GmailDeliveryTests(unittest.TestCase):
         self.assertFalse((self.root / '.websmith-talks/deliveries').exists())
 
     def test_missing_recipient_blocks_preparation_without_creating_delivery_state(self):
-        atomic_json(self.config, DEFAULT_CONFIG)
+        atomic_json(self.config, dict(DEFAULT_CONFIG, site={"id": "example"}))
         status = delivery.status(self.root)
         self.assertFalse(status['recipient_configured'])
         self.assertEqual(status['recipient'], '')
@@ -94,7 +94,7 @@ class GmailDeliveryTests(unittest.TestCase):
 
     def test_changed_recipient_does_not_bypass_duplicate_protection(self):
         self.prepare()
-        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient='other@example.test'))
+        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient='other@example.test', site={'id':'example'}))
         with self.assertRaises(ValueError):
             self.prepare()
 

@@ -18,6 +18,8 @@
 <pre id="install">URL di distribuzione non ancora configurato.</pre>
 <button id="copy" disabled>Copia comando</button>
 <p><small>L’installazione crea la cartella websmith-talks nella tua cartella personale. Non invia email.</small></p>
+<p>Il setup chiede il <code>site.id</code> del sito Websmith. Copia esattamente il valore dal suo <code>websmith.yaml</code>. Nome e indirizzo sono facoltativi. Per un altro sito usa una cartella separata; gli aggiornamenti mantengono l’associazione esistente.</p>
+<p>Per uso non interattivo puoi scaricare lo script e passare <code>--site-id ID</code>, <code>--root CARTELLA</code>, <code>--site-name NOME</code>, <code>--site-url URL</code> e <code>--recipient EMAIL</code>. Le consegne includono il tag <code>[websmith:site.id]</code> nell’oggetto.</p>
 <h2>2. Collega Gmail per le consegne email</h2>
 <p>Se vuoi consegnare i documenti via email, collega il tuo account Google e rendi disponibile il connettore Gmail nella chat. L’assistente userà send_email per la consegna. Per preparare e salvare una pagina con Page non serve Gmail. Non servono password o parametri di connessione in websmith-talks.</p>
 <h2>3. Apri websmith-talks in Codex</h2>
@@ -34,7 +36,7 @@
 ~/websmith-talks/websmith-talks uninstall</pre>
 <p>Gli aggiornamenti conservano impostazioni locali, bozze e stato degli invii. La disinstallazione disattiva la skill e conserva i tuoi documenti.</p>
 <h2>Passaggio da TRTalks</h2>
-<p>Usa il nuovo installer indicando la cartella esistente con <code>WEBSMITH_TALKS_HOME</code>. Il vecchio comando <code>trtalks update</code> non comprende il nuovo pacchetto. Configurazioni, bozze, regole locali e ricevute vengono conservate; lo stato diventa <code>.websmith-talks</code> e le skill diventano <code>story</code> e <code>page</code>. Le istruzioni complete sono nel README del repository.</p>
+<p>Usa il nuovo installer indicando la cartella esistente con <code>WEBSMITH_TALKS_HOME</code> e il sito con <code>--site-id ID</code>. Il vecchio comando <code>trtalks update</code> non comprende il nuovo pacchetto. Configurazioni, bozze, regole locali e ricevute vengono conservate; lo stato diventa <code>.websmith-talks</code> e le skill diventano <code>story</code> e <code>page</code>. Le istruzioni complete sono nel README del repository.</p>
 <script>
 const base=document.querySelector('meta[name="websmith-talks-release-url"]').content;
 if(base){try{const u=new URL(base);if(u.protocol==='https:'&&!u.username&&!u.password&&!u.search&&!u.hash){

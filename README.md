@@ -8,9 +8,10 @@ domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione di sviluppo **0.6.0a1**: rinomina da TRTalks, comando `websmith-talks`,
-skill `story` e `page` e stato in `.websmith-talks`. La consegna resta Gmail:
-il mittente è l’account Google collegato all’app.
+Versione di sviluppo **0.7.0a1**: un sito per installazione e tag email
+`[websmith:site.id]` compatibile con Websmith. Il comando è `websmith-talks`,
+le skill sono `story` e `page` e lo stato è in `.websmith-talks`.
+La consegna resta Gmail: il mittente è l’account Google collegato all’app.
 Le conversazioni sono utilizzabili per siti e organizzazioni diversi, senza
 un marchio o un destinatario email predefinito.
 
@@ -37,6 +38,31 @@ Per preparare una pagina web:
 
 > Usa $page per preparare una pagina web, una domanda alla volta.
 
+## Un sito per installazione
+
+Durante il setup indicare lo stesso `site.id` presente nel `websmith.yaml`
+del sito gestito da Websmith. L'ID viene copiato esattamente: lettere minuscole,
+numeri e trattini, senza ricavarlo dal nome o dall'indirizzo del sito.
+Il setup lo chiede nel terminale se non è già configurato. Per un'installazione
+non interattiva, dopo la pubblicazione della release:
+
+```bash
+curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh -o /tmp/websmith-talks-setup.sh
+bash /tmp/websmith-talks-setup.sh --root "$HOME/talks-example" --site-id example --site-name "Example" --site-url https://example.org --recipient redazione@example.org
+```
+
+Solo `--site-id` è obbligatorio alla prima installazione; nome, URL e casella
+email sono facoltativi. Si possono usare anche `WEBSMITH_TALKS_SITE_ID`,
+`WEBSMITH_TALKS_SITE_NAME`, `WEBSMITH_TALKS_SITE_URL` e
+`WEBSMITH_TALKS_RECIPIENT`. Il sito resta in `.websmith-talks/config.local.json`
+e nei metadati locali dell'installazione, senza entrare nel pacchetto distribuito.
+
+Gli aggiornamenti riusano il sito associato. Un ID diverso viene rifiutato;
+per un altro sito usare un'altra cartella. Nome e URL sono modificabili con
+`configure --site-name NOME --site-url URL`. `status` mostra sito e tag email.
+Le due applicazioni restano separate: l'identificativo comune consente a
+Websmith di selezionare le consegne destinate al proprio sito.
+
 Page è presente nei sorgenti di sviluppo; sarà disponibile nell'installer
 pubblico dopo la prossima release. Le domande sono in
 [skills/page/references/domande.md](skills/page/references/domande.md).
@@ -60,9 +86,9 @@ ogni consegna usa l’autorizzazione della persona per il documento e destinatar
 si fermano senza creare tentativi; i destinatari già salvati sono conservati
 durante gli aggiornamenti. Nessun indirizzo viene dedotto dal nome del sito.
 
-Le skill ricavano sito, pubblico e scopo dalle istruzioni del progetto o dalle
-risposte. Il sito può essere ancora da decidere, senza impedire il salvataggio
-di una bozza. Story non presume l'uso dell'AI, un cliente esterno, una sezione
+Le skill usano il sito associato senza richiederlo a ogni conversazione;
+raccolgono pubblico e scopo dalle indicazioni ricevute.
+Story non presume l'uso dell'AI, un cliente esterno, una sezione
 chiamata Stories o pannelli di sintesi obbligatori.
 
 ## Intervista e consegna
@@ -75,6 +101,12 @@ e lo mostra integralmente. Dopo l’autorizzazione alla consegna, esegue:
    argomenti Gmail. Questo comando **non invia** da solo.
 3. La chiamata effettiva a `send_email` di Gmail con il `.md` in `attachment_files`.
 4. `record-result`: conserva la risposta reale e l’ID del messaggio Gmail.
+
+Ogni nuova email ha un solo tag all'inizio dell'oggetto, per esempio
+`[websmith:example] websmith-talks — pagina-esempio.md`. Il valore `example`
+deve coincidere con `site.id` del destinatario Websmith. Il tag non cambia
+i byte del Markdown allegato. L'indirizzo email può essere condiviso fra siti:
+il filtro di Websmith usa l'ID, non il nome del sito o il dominio della casella.
 
 La persona intervistata non deve lanciare comandi di invio. Le istruzioni
 operative sono in [invio.md](runtime/references/invio.md) e
@@ -112,7 +144,7 @@ senza rinominarla o spostarla prima. Dopo la pubblicazione della release:
 
 ```bash
 curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh -o /tmp/websmith-talks-setup.sh
-WEBSMITH_TALKS_HOME="$HOME/TRTalks" bash /tmp/websmith-talks-setup.sh
+WEBSMITH_TALKS_HOME="$HOME/TRTalks" bash /tmp/websmith-talks-setup.sh --site-id example
 ```
 
 L’installer rinomina lo stato in `.websmith-talks`, sostituisce il launcher
@@ -133,10 +165,12 @@ Il vecchio comando `trtalks update` non comprende il nuovo formato: il primo
 passaggio richiede il bootstrap nuovo oppure `runtime/manage.py install --upgrade`
 con il nuovo archivio e il relativo checksum.
 
-La configurazione di un solo sito all'installazione, con `site.id` condiviso con
-Websmith e tag email `[websmith:site.id]`, è il passo successivo. In questa fase
-il sito è ricavato dalle indicazioni del progetto e non viene creato un nuovo
-schema di configurazione per il sito.
+Per installazioni websmith-talks precedenti senza sito, associarlo una sola volta
+con `websmith-talks configure --site-id example` oppure passare `--site-id` al
+nuovo installer o all'aggiornamento. Il passaggio conserva i dati e le ricevute:
+i documenti già registrati continuano a bloccare duplicati. I vecchi messaggi
+non vengono rispediti per aggiungere il tag. Le nuove consegne richiedono sia
+il sito associato sia il destinatario configurato.
 
 ## Sviluppo
 
@@ -148,6 +182,7 @@ schema di configurazione per il sito.
 ```bash
 python3 -m unittest discover -s tests -v
 python3 scripts/build_release.py --output dist
+python3 scripts/install_local.py --project-root /percorso/talks-example --site-id example
 ```
 
 Il connettore Gmail è invocato dall’agente nell’app, non dal processo Python.

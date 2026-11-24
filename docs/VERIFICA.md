@@ -7,6 +7,9 @@ blocchi sui duplicati e installazioni/aggiornamenti con rollback. Include il
 passaggio da TRTalks con skill singola o catalogo, lo spostamento delle regole
 locali, il mantenimento delle ricevute precedenti e il nuovo bootstrap shell.
 I download del bootstrap nei test sono sostituiti da file locali dichiarati.
+I test sui siti coprono setup con parametri o variabili, domanda nel terminale,
+associazione conservata, rifiuto di altri ID, rollback della configurazione,
+oggetto email con un solo tag e casella condivisa fra installazioni separate.
 
 I risultati Gmail nei test sono sintetici; nessuna email viene inviata.
 `websmith-talks status` legge solo la configurazione. Per una verifica reale senza email

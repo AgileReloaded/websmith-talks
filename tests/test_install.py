@@ -27,7 +27,7 @@ class InstallTests(unittest.TestCase):
         self.new, self.new_sha = package("0.3.0a2")
 
     def install(self):
-        return manage.install(self.root, self.raw, self.sha, "https://example.test/releases/latest/download")
+        return manage.install(self.root, self.raw, self.sha, "https://example.test/releases/latest/download", site={"id": "example"})
 
     def test_application_skill_mode_preserves_protected_skill_and_supports_updates(self):
         self.install()
@@ -64,7 +64,7 @@ class InstallTests(unittest.TestCase):
         self.install()
         local = self.root / ".websmith-talks/config.local.json"
         atomic_json(local, dict(manage.DEFAULT_CONFIG, schema=1, transport="smtp", smtp_password="synthetic-private-test-value",
-                                smtp_username="local@techreloaded.it", recipient="info@techreloaded.it"))
+                                smtp_username="local@techreloaded.it", recipient="info@techreloaded.it", site={"id": "example"}))
         before = local.read_bytes()
         draft = self.root / "drafts/intervista.md"
         draft.parent.mkdir()
@@ -75,7 +75,7 @@ class InstallTests(unittest.TestCase):
         override.write_text("Regole locali")
         result = manage.install(self.root, self.new, self.new_sha, update=True)
         self.assertTrue(result["changed"])
-        self.assertEqual(json.loads(local.read_text()), validate_config(json.loads(before)))
+        self.assertEqual(json.loads(local.read_text()), dict(validate_config(json.loads(before)), site={"id": "example", "name": "example", "base_url": ""}))
         self.assertFalse(any("synthetic-private-test-value" in p.read_text()
                              for p in (self.root / ".websmith-talks/backups").rglob("*") if p.is_file()))
         self.assertEqual(local.stat().st_mode & 0o777, 0o600)
@@ -144,7 +144,7 @@ class InstallTests(unittest.TestCase):
         with mock.patch("manage.download", side_effect=download):
             result = manage.remote_update(self.root)
         self.assertTrue(result["changed"])
-        self.assertEqual(json.loads(config.read_text()), validate_config(json.loads(before)))
+        self.assertEqual(json.loads(config.read_text()), dict(validate_config(json.loads(before)), site={"id": "example", "name": "example", "base_url": ""}))
 
     def test_dry_run_and_downgrade_do_not_change_installation(self):
         self.install()
@@ -154,7 +154,7 @@ class InstallTests(unittest.TestCase):
         self.assertFalse(result["changed"])
         self.assertEqual((target / manage.MANIFEST).read_bytes(), before)
         manage.install(self.root, self.new, self.new_sha, update=True)
-        result = manage.install(self.root, self.raw, self.sha, update=True)
+        result = manage.install(self.root, self.raw, self.sha, update=True, site={"id": "example"})
         self.assertFalse(result["changed"])
         self.assertEqual(manage.installed_manifest(target)["version"], "0.3.0a2")
 
@@ -220,7 +220,7 @@ class InstallTests(unittest.TestCase):
         catalog["renames"] = {k: v for k, v in catalog["renames"].items() if v != "page"}
         catalog_path.write_bytes(canonical(catalog))
         raw, sha = package("0.3.0a1", source=source)
-        manage.install(self.root, raw, sha)
+        manage.install(self.root, raw, sha, site={"id": "example"})
         self.assertFalse((self.root / ".agents/skills/page").exists())
         config = self.root / ".websmith-talks/config.local.json"
         before = config.read_bytes()
@@ -297,12 +297,12 @@ class InstallTests(unittest.TestCase):
         atomic_json(retained, {"request_id": "retained-original-id"})
         before = config.read_bytes()
         (self.root / "trtalks").write_bytes(manage.launcher_bytes(self.root, legacy=True))
-        result = manage.install(self.root, self.raw, self.sha, update=True)
+        result = manage.install(self.root, self.raw, self.sha, update=True, site={"id": "example"})
         self.assertTrue(result["migrated_legacy_installation"])
         self.assertFalse(legacy.exists())
         self.assertEqual((self.root / ".agents/skills/story/references/regole.local.md").read_text(), "Regole del caso")
         self.assertEqual((self.root / ".websmith-talks/app/runtime/references/backend.local.md").read_text(), "Regole condivise")
-        self.assertEqual(json.loads((self.root / ".websmith-talks/config.local.json").read_text()), validate_config(json.loads(before)))
+        self.assertEqual(json.loads((self.root / ".websmith-talks/config.local.json").read_text()), dict(validate_config(json.loads(before)), site={"id": "example", "name": "example", "base_url": ""}))
         self.assertEqual(json.loads((self.root / ".websmith-talks/deliveries/retained.json").read_text())["request_id"], "retained-original-id")
 
 

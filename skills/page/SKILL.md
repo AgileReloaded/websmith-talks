@@ -24,9 +24,12 @@ il catalogo dei template e la struttura del sito. Rispettare gli override locali
 Usare queste fonti per evitare richieste già soddisfatte; non supporre che il
 progetto websmith-talks contenga anche i sorgenti del sito. Se mancano, raccogliere le
 indicazioni dalla persona e distinguere scelte, proposte e dati da verificare.
-Non assumere un marchio o un sito predefinito. Ricavare la destinazione dalle
-istruzioni del progetto o dalle risposte; se manca, chiederla una sola volta.
-Accettare un sito non ancora deciso, segnalandolo nelle informazioni mancanti.
+Leggere `websmith-talks status` con il launcher del progetto e usare il sito
+associato senza chiederlo di nuovo. Ogni installazione serve un solo sito.
+Se una vecchia installazione non è associata, raccogliere lo stesso `site.id`
+di Websmith e usare `configure --site-id ID` prima di avviare la conversazione.
+Non dedurre l'ID dal dominio o dal nome. Per un altro sito usare un progetto
+separato, senza modificare l'associazione corrente.
 
 ## Conversazione
 
@@ -82,6 +85,8 @@ sotto la radice. Il launcher `websmith-talks paths` mostra i percorsi effettivi.
 
 Usare il connettore Gmail e il flusso comune solo con l'autorizzazione per
 quella versione e il destinatario effettivo. Se già ricevuta, non richiederla.
+Conservare il tag `[websmith:site.id]` nell'oggetto preparato dal runtime;
+non cambiare la destinazione del sito durante la consegna.
 Non duplicare il runtime, non chiedere credenziali e non sostituire Gmail con
 script di rete. Distinguere revisione del testo, consegna email e pubblicazione
 del sito: l'approvazione di una non autorizza automaticamente le altre.

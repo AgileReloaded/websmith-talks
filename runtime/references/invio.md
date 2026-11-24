@@ -6,6 +6,12 @@ e chiamare Gmail: l'intervistato non deve eseguire comandi di invio.
 
 ## Collegamento e destinazione
 
+Leggere sito e tag da `websmith-talks status`. Il sito è quello associato
+all'installazione e non si cambia per la singola consegna. Se una vecchia
+installazione non lo dichiara, raccogliere lo stesso `site.id` di Websmith e
+associarlo una sola volta con `configure --site-id ID`. Per un altro sito
+usare un progetto separato.
+
 Verificare che il tool Gmail `send_email` sia disponibile in questa chat.
 Se manca, dichiarare il blocco e conservare il file. Non chiedere credenziali.
 `websmith-talks status` mostra destinatario e abilitazione senza rete. Per un test
@@ -37,6 +43,7 @@ collegato. Non servono `init` o variabili di connessione.
 5. Se `cached:true`, riusare la ricevuta e fermarsi senza chiamare Gmail.
    Altrimenti chiamare subito `send_email` di Gmail con i `tool_arguments`
    restituiti: destinatario, oggetto, corpo e Markdown in `attachment_files`.
+   Conservare l'oggetto con l'unico tag `[websmith:site.id]` preparato dal runtime.
    Usare un percorso/riferimento accessibile al connettore per la copia approvata,
    come descritto in backend.md. Non fermarsi alla preparazione locale.
 6. Salvare la risposta reale JSON di Gmail, senza inventare campi o ID, e usare

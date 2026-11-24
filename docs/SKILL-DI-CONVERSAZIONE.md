@@ -2,13 +2,14 @@
 
 websmith-talks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
 **Story** raccoglie case histories e si invoca con `$story`; **Page** prepara
-pagine web e si invoca con `$page`. La versione di sviluppo è 0.6.0a1.
+pagine web e si invoca con `$page`. La versione di sviluppo è 0.7.0a1.
 Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
 I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
-Le conversazioni non assumono un marchio o un sito. Leggono le istruzioni del
-progetto e raccolgono dalla persona le indicazioni mancanti; il sito può essere
-ancora da decidere. Le regole del sito per l'articolo finale non cambiano la
+Le conversazioni non assumono un marchio. Leggono il sito associato tramite
+`status`, poi le istruzioni del progetto e le indicazioni della persona.
+Ogni installazione serve un solo sito e non propone di cambiarlo a ogni conversazione.
+Le regole del sito per l'articolo finale non cambiano la
 fedeltà alle risposte dell'intervistato. AI e pannelli di sintesi sono facoltativi.
 
 ## Organizzazione dei sorgenti
@@ -108,14 +109,22 @@ launcher, skill, configurazione e istruzioni precedenti.
 
 ## Verifiche e limiti
 
-Il runtime 0.6.0a1 prepara la consegna per `send_email` del connettore Gmail.
+Il runtime 0.7.0a1 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
 nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
 Le nuove installazioni hanno il destinatario vuoto: la consegna richiede
 `configure --recipient INDIRIZZO`, su indicazione della persona. Gli aggiornamenti
 conservano gli indirizzi esistenti, compresi quelli delle installazioni TRTalks.
-L'associazione a un solo sito e il tag email condiviso con Websmith sono previsti
-nel passo successivo e non vengono ancora applicati.
+Il setup richiede `--site-id` (o la risposta nel terminale), uguale a `site.id`
+del `websmith.yaml` di Websmith. Nome e URL sono facoltativi. La configurazione
+locale contiene `site: {id, name, base_url}`; i metadati di installazione
+conservano l'associazione. Un ID diverso in configure, setup o update blocca
+l'operazione. Per un altro sito occorre un'altra cartella.
+
+Le email nuove usano `[websmith:site.id]` nell'oggetto, una sola volta.
+`dry-run` espone sito, tag e oggetto; le nuove ricevute conservano `site_id`.
+Le ricevute precedenti senza ID restano valide nella stessa installazione e
+continuano a bloccare i duplicati, senza modificare allegati o rigenerare tentativi.
 `status` mostra le preferenze senza rete; `get_profile` di Gmail verifica
 l’account; `probe` crea solo una bozza locale.
 

@@ -11,7 +11,7 @@ import re
 import sys
 import uuid
 
-from common import atomic_json, canonical, digest, email_address, load_config, locked, now, plain_path
+from common import atomic_json, bind_site, canonical, digest, email_address, load_config, locked, now, plain_path, site_tag
 from delivery import GMAIL_TOOL, gmail_arguments, gmail_receipt
 
 
@@ -20,16 +20,21 @@ def status(root):
     return {"operation": "gmail-status", "transport": "gmail", "network_called": False,
             "recipient": config["recipient"], "send_enabled": config["send_enabled"],
             "recipient_configured": bool(config["recipient"]),
+            "site": config["site"], "site_configured": config["site"] is not None,
+            "email_tag": site_tag(config["site"]) if config["site"] else None,
             "gmail_connection_verified": False, "email_delivery": "not_requested",
             "required_tool": GMAIL_TOOL,
             "next_action": ("L'agente verifica il tool Gmail; get_profile verifica l'account senza inviare email."
-                            if config["recipient"] else
+                            if config["recipient"] and config["site"] else
+                            "Associare l'installazione con websmith-talks configure --site-id ID; usare lo stesso site.id di Websmith."
+                            if not config["site"] else
                             "Indicare il destinatario della consegna con websmith-talks configure --recipient INDIRIZZO; nessun invio disponibile finché manca.")}
 
 
 def validated_document(file, config, name=None, email=None):
     if not email_address(config["recipient"]):
         raise ValueError("Destinatario non configurato: usare websmith-talks configure --recipient INDIRIZZO prima della consegna")
+    bind_site(config, required=True)
     file = plain_path(Path(file).absolute())
     if not file.is_file():
         raise ValueError("La bozza deve essere un file regolare")
@@ -56,6 +61,8 @@ def dry_run(root, file, name=None, email=None):
     return {"network_called": False, "email_delivery": "not_requested", "transport": "gmail",
             "sha256": sha, "bytes": len(args["markdown"].encode("utf-8")),
             "filename": args["filename"], "recipient": config["recipient"],
+            "site": config["site"], "email_tag": site_tag(config["site"]),
+            "subject": site_tag(config["site"]) + " websmith-talks — " + args["filename"],
             "send_enabled": config["send_enabled"], "required_tool": GMAIL_TOOL}
 
 
@@ -84,6 +91,13 @@ def cached_result(record, path):
                 network_called=False, next_action="Nessun nuovo invio: riusare la ricevuta salvata.")
 
 
+def check_record_site(root, record):
+    if record.get("site_id"):
+        config = bind_site(load_config(root), required=True)
+        if config["site"]["id"] != record["site_id"]:
+            raise ValueError("Tentativo registrato per un altro sito; nessuna modifica o nuovo invio")
+
+
 def send(root, file, approved_sha256, authorization, name=None, email=None):
     root = Path(root).resolve()
     config = load_config(root)
@@ -93,9 +107,13 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
     if approved_sha256 != sha or not isinstance(authorization, str) or not authorization.strip():
         raise ValueError("Manca l'autorizzazione esplicita o la bozza differisce dalla versione autorizzata")
     with locked(root / ".websmith-talks/delivery.lock"):
+        # Configuration changes use the same lock: do not route with stale settings.
+        if load_config(root) != config:
+            raise ValueError("Configurazione cambiata durante la preparazione; ripetere la verifica")
         directory = plain_path(root / ".websmith-talks/deliveries")
         directory.mkdir(parents=True, exist_ok=True, mode=0o700)
-        fingerprint = digest(canonical({"recipient": config["recipient"], "arguments": args}))
+        legacy_fingerprint = digest(canonical({"recipient": config["recipient"], "arguments": args}))
+        fingerprint = digest(canonical({"site_id": config["site"]["id"], "recipient": config["recipient"], "arguments": args}))
         for path in directory.glob("*.json"):
             if not re.fullmatch(r"(?:websmith-talks|trtalks)-[a-f0-9]{32}\.json", path.name):
                 continue
@@ -104,7 +122,10 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
                 continue
             if record.get("transport") != "gmail":
                 raise ValueError("Documento registrato con un precedente trasporto: verificare manualmente; nessun reinvio Gmail")
-            if record["fingerprint"] != fingerprint:
+            if record.get("site_id") and record["site_id"] != config["site"]["id"]:
+                raise ValueError("Documento registrato per un altro sito: nessun nuovo invio")
+            expected_fingerprint = fingerprint if record.get("site_id") else legacy_fingerprint
+            if record["fingerprint"] != expected_fingerprint:
                 raise ValueError("Documento registrato con altri metadati o destinatario: verificare prima di un altro invio")
             if record["status"] == "accepted":
                 return cached_result(record, path)
@@ -117,9 +138,10 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
         with attachment.open("xb") as stream:
             stream.write(args["markdown"].encode("utf-8"))
         attachment.chmod(0o600)
-        tool_args = gmail_arguments(config["recipient"], attachment, args["filename"], args["name"], args["email"])
+        tool_args = gmail_arguments(config["recipient"], attachment, args["filename"], args["name"], args["email"], site=config["site"])
         record = {"schema": 3, "transport": "gmail", "created_at": now(), "request_id": request_id,
                   "recipient": config["recipient"], "document_sha256": sha, "fingerprint": fingerprint,
+                  "site_id": config["site"]["id"], "email_tag": site_tag(config["site"]),
                   "authorization": authorization, "draft_path": str(Path(file).absolute()),
                   "attachment_path": str(attachment), "arguments": args, "gmail_arguments": tool_args,
                   "status": "pending"}
@@ -135,6 +157,7 @@ def record_result(root, request_id, receipt_file):
     with locked(Path(root) / ".websmith-talks/delivery.lock"):
         path = record_path(root, request_id)
         record = json.loads(path.read_text(encoding="utf-8"))
+        check_record_site(root, record)
         if record.get("transport") != "gmail" or record.get("request_id") != request_id:
             raise ValueError("La ricevuta deve riferirsi a un tentativo Gmail dello stesso ID")
         if record["status"] == "accepted":
@@ -163,6 +186,7 @@ def retry(root, request_id):
     with locked(Path(root) / ".websmith-talks/delivery.lock"):
         path = record_path(root, request_id)
         record = json.loads(path.read_text(encoding="utf-8"))
+        check_record_site(root, record)
         if record.get("transport") == "gmail" and record["status"] == "accepted":
             return cached_result(record, path)
         raise ValueError("Reinvio automatico disabilitato: verificare l'esito nel servizio originale; nessuna email inviata")

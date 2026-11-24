@@ -9,7 +9,7 @@ from delivery import gmail_arguments, gmail_receipt
 
 class GmailContractTests(unittest.TestCase):
     def test_attachment_is_a_file_and_sender_is_the_authenticated_account(self):
-        result = gmail_arguments('to@example.test', '/tmp/story.md', 'story.md', '<Author>', 'reply@example.test')
+        result = gmail_arguments('to@example.test', '/tmp/story.md', 'story.md', '<Author>', 'reply@example.test', site={'id':'example'})
         self.assertEqual(result['attachment_files'], ['/tmp/story.md'])
         self.assertEqual(result['reply_to'], 'reply@example.test')
         self.assertNotIn('from_address', result)

@@ -4,6 +4,29 @@ set -euo pipefail
 default_release_url=""
 release_base="${WEBSMITH_TALKS_RELEASE_URL:-$default_release_url}"
 install_root="${WEBSMITH_TALKS_HOME:-${TRTALKS_HOME:-$HOME/websmith-talks}}"
+site_id="${WEBSMITH_TALKS_SITE_ID:-}"
+site_name="${WEBSMITH_TALKS_SITE_NAME:-}"
+site_url="${WEBSMITH_TALKS_SITE_URL:-}"
+recipient="${WEBSMITH_TALKS_RECIPIENT:-}"
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --site-id|--site-name|--site-url|--recipient|--root)
+      [ "$#" -ge 2 ] || { echo "Valore mancante per $1" >&2; exit 1; }
+      case "$1" in
+        --site-id) site_id="$2" ;;
+        --site-name) site_name="$2" ;;
+        --site-url) site_url="$2" ;;
+        --recipient) recipient="$2" ;;
+        --root) install_root="$2" ;;
+      esac
+      shift 2 ;;
+    --help|-h)
+      echo 'Uso: bash setup.sh --site-id ID [--site-name NOME] [--site-url URL] [--recipient EMAIL] [--root CARTELLA]'
+      echo 'Usare lo stesso site.id di websmith.yaml. Un sito diverso richiede una cartella separata.'
+      exit 0 ;;
+    *) echo "Opzione non riconosciuta: $1" >&2; exit 1 ;;
+  esac
+done
 case "$(uname -s)" in Darwin|Linux) ;; *) echo 'Supportati macOS e Linux.' >&2; exit 1 ;; esac
 for tool in python3 curl mktemp; do
   command -v "$tool" >/dev/null || { echo "Dipendenza richiesta: $tool" >&2; exit 1; }
@@ -44,8 +67,13 @@ with zipfile.ZipFile(p/'websmith-talks.zip') as z:
 print(matches[0])
 PY
 )
+site_args=(--interactive)
+[ -z "$site_id" ] || site_args+=(--site-id "$site_id")
+[ -z "$site_name" ] || site_args+=(--site-name "$site_name")
+[ -z "$site_url" ] || site_args+=(--site-url "$site_url")
+[ -z "$recipient" ] || site_args+=(--recipient "$recipient")
 python3 "$temporary/manage.py" install --root "$install_root" --archive "$temporary/websmith-talks.zip" \
-  --sha256 "$expected" --release-url "$release_base" --upgrade
+  --sha256 "$expected" --release-url "$release_base" --upgrade "${site_args[@]}"
 echo "Apri la cartella $install_root nell'app Codex."
 echo 'Scrivi: Mostrami le tipologie di conversazione websmith-talks disponibili.'
 echo "Aggiornamento: $install_root/websmith-talks update"

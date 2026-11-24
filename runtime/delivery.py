@@ -1,13 +1,14 @@
 """Gmail connector arguments. This module never opens a network connection."""
 import html
 import json
+from common import site_tag
 
 GMAIL_TOOL = "mcp__codex_apps__gmail_send_email"
 
 
-def gmail_arguments(recipient, attachment_path, filename, name, reply_to=""):
+def gmail_arguments(recipient, attachment_path, filename, name, reply_to="", *, site):
     arguments = {
-        "to": recipient, "subject": "websmith-talks — " + filename,
+        "to": recipient, "subject": site_tag(site) + " websmith-talks — " + filename,
         "payload": {"mime_type": "text/html", "body": {"content":
             "<p>Resoconto websmith-talks preparato da " + html.escape(name or "websmith-talks")
             + ".</p><p>Il documento Markdown completo è allegato.</p>"}},

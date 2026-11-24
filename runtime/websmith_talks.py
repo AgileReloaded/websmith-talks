@@ -4,10 +4,12 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import tempfile
+import uuid
 
 import manage
 import send_document
-from common import atomic_json, load_config, locked, plain_path, validate_config
+from common import atomic_json, bind_site, canonical, load_config, locked, plain_path, requested_site, site_tag, validate_config
 from catalog import load_catalog
 
 APPLICATION = Path(__file__).resolve().parent.parent
@@ -61,15 +63,19 @@ def main(argv=None):
     config_parser.add_argument("--name")
     config_parser.add_argument("--email")
     config_parser.add_argument("--recipient")
+    config_parser.add_argument("--site-id")
+    config_parser.add_argument("--site-name")
+    config_parser.add_argument("--site-url")
     enabled = config_parser.add_mutually_exclusive_group()
     enabled.add_argument("--enable-send", action="store_true")
     enabled.add_argument("--disable-send", action="store_true")
     values = config_parser.parse_args(remaining)
     try:
-        with locked(root / ".websmith-talks/manage.lock"):
+        with locked(root / ".websmith-talks/manage.lock"), locked(root / ".websmith-talks/delivery.lock"):
             path = plain_path(root / ".websmith-talks/config.local.json")
             # Preserve unknown local keys; validate before committing any change.
             config = load_config(root)
+            config = bind_site(config, requested_site(config, values.site_id, values.site_name, values.site_url))
             if values.name is not None:
                 config["sender_name"] = values.name
             if values.email is not None:
@@ -79,9 +85,26 @@ def main(argv=None):
             if values.enable_send or values.disable_send:
                 config["send_enabled"] = values.enable_send
             config = validate_config(config)
-            atomic_json(path, config)
+            if config["site"]:
+                metadata_path = plain_path(root / ".websmith-talks/install.json")
+                metadata = json.loads(metadata_path.read_text()) if metadata_path.exists() else {}
+                metadata["site"] = config["site"]
+                state = path.parent
+                with tempfile.TemporaryDirectory(prefix="configure-", dir=str(state)) as temporary:
+                    temporary = Path(temporary)
+                    plan = [(path, manage.staged_file(temporary, "config", canonical(config) + b"\n")),
+                            (metadata_path, manage.staged_file(temporary, "metadata", canonical(metadata) + b"\n"))]
+                    backup = state / "backups" / ("configure-" + uuid.uuid4().hex)
+                    manage.commit_plan(plan, backup)
+                    # Discard the previous configuration only after a successful commit.
+                    if (backup / "0").exists():
+                        (backup / "0").unlink()
+            else:
+                atomic_json(path, config)
         print(json.dumps({"configured": True, "send_enabled": config["send_enabled"],
                           "recipient_configured": bool(config["recipient"]),
+                          "site": config["site"], "site_configured": config["site"] is not None,
+                          "email_tag": site_tag(config["site"]) if config["site"] else None,
                           "transport": "gmail", "recipient": config["recipient"],
                           "config_file": str(path), "network_called": False}, ensure_ascii=False))
         return 0

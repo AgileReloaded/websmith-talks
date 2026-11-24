@@ -9,7 +9,8 @@ già coperti. Se la persona fornisce materiali, leggerli prima di approfondire.
 
 **Che cosa deve ottenere questa pagina?**
 
-Se manca il contesto: «Per quale sito la stiamo preparando?»
+Usare il sito associato all'installazione, letto con `websmith-talks status`.
+Non chiedere di scegliere un sito per ogni pagina.
 
 ## 2. Destinatari
 

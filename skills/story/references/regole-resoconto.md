@@ -7,8 +7,9 @@ finale non si applicano automaticamente alle risposte dell'intervistato.
 
 - Conservare la prima persona, il lessico e i dettagli delle risposte. Togliere
   esitazioni e ripetizioni senza cancellare fatti, episodi, opinioni o dubbi.
-- Registrare il sito e la sezione dalle indicazioni effettive. Se mancano,
-  scrivere «non dichiarato» o «da decidere», senza scegliere un marchio predefinito.
+- Registrare il sito dalla configurazione dell'installazione, mantenendo il
+  relativo `site.id`. Raccogliere la sezione dalle indicazioni effettive; se
+  manca, scrivere «da decidere», senza inventare nomi o percorsi.
 - Adattare il racconto a progetti con clienti esterni, utenti o destinatari interni.
   Non aggiungere l'AI se non emerge e omettere i pannelli quando non sono previsti.
 - Conservare numeri e precisione originali, distinguendo misura, stima e ricordo

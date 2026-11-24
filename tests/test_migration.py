@@ -96,7 +96,7 @@ class MigrationTests(unittest.TestCase):
         self.skill_root = skills
 
     def migrate(self, **kwargs):
-        return manage.install(self.root, self.raw, self.sha, update=True, **kwargs)
+        return manage.install(self.root, self.raw, self.sha, update=True, site={"id": "example"}, **kwargs)
 
     def snapshot(self):
         return {p.relative_to(self.root).as_posix(): p.read_bytes() for p in self.root.rglob("*")
@@ -111,7 +111,8 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(result["skills"], ["page", "story"])
         self.assertFalse(self.previous.exists())
         self.assertFalse((self.root / "trtalks").exists())
-        self.assertEqual((self.current / "config.local.json").read_bytes(), config)
+        self.assertEqual(json.loads((self.current / "config.local.json").read_text()),
+                         dict(json.loads(config), site={"id": "example", "name": "example", "base_url": ""}))
         self.assertEqual((self.current / "deliveries" / (self.request_id + ".json")).read_bytes(), receipt)
         self.assertEqual((self.current / "deliveries" / self.request_id / self.draft.name).read_bytes(), self.draft.read_bytes())
         self.assertEqual((self.current / "overrides/page/references/domande.local.md").read_bytes(), b"Local page questions")
@@ -243,13 +244,20 @@ class MigrationTests(unittest.TestCase):
     def test_new_bootstrap_installs_the_renamed_package(self):
         self.bootstrap()
 
+    def test_new_bootstrap_accepts_site_options_without_environment_variables(self):
+        self.bootstrap(via_arguments=True)
+        config = json.loads((self.current / "config.local.json").read_text())
+        self.assertEqual(config["site"]["id"], "example")
+        self.assertEqual(config["site"]["name"], "Example title")
+        self.assertEqual(config["recipient"], "editor@example.test")
+
     def test_new_bootstrap_migrates_a_trtalks_installation(self):
         self.old_installation()
         self.bootstrap()
         self.assertFalse(self.previous.exists())
         self.assertTrue(send_document.retry(self.root, self.request_id)["cached"])
 
-    def bootstrap(self):
+    def bootstrap(self, via_arguments=False):
         assets = Path(self.temp.name) / "assets"
         build(assets, manage.DEFAULT_RELEASE_URL)
         binaries = Path(self.temp.name) / "bin"
@@ -262,8 +270,14 @@ class MigrationTests(unittest.TestCase):
                         'shutil.copyfile(Path(os.environ["TEST_RELEASE_ASSETS"]) / asset, args[args.index("-o") + 1])\n')
         curl.chmod(0o755)
         env = dict(os.environ, PATH=str(binaries) + os.pathsep + os.environ["PATH"],
-                   TEST_RELEASE_ASSETS=str(assets), WEBSMITH_TALKS_HOME=str(self.root))
-        completed = subprocess.run(["bash", str(assets / "setup.sh")], env=env, text=True,
+                   TEST_RELEASE_ASSETS=str(assets), WEBSMITH_TALKS_HOME=str(self.root), WEBSMITH_TALKS_SITE_ID="example")
+        command = ["bash", str(assets / "setup.sh")]
+        if via_arguments:
+            env.pop("WEBSMITH_TALKS_SITE_ID", None)
+            env.pop("WEBSMITH_TALKS_HOME", None)
+            command.extend(["--root", str(self.root), "--site-id", "example", "--site-name", "Example title",
+                            "--site-url", "https://example.test", "--recipient", "editor@example.test"])
+        completed = subprocess.run(command, env=env, text=True,
                                    capture_output=True, timeout=30)
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertTrue((self.root / "websmith-talks").exists())

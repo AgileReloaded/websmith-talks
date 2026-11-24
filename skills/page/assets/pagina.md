@@ -2,7 +2,9 @@
 
 Stato editoriale: [bozza / rivista con la persona / incompleta / prova fittizia]
 Data: [data effettiva]
-Sito e lingua: [indicazioni raccolte]
+Sito: [site.name e site.id dell'installazione]
+Indirizzo del sito: [site.base_url, se configurato]
+Lingua: [indicazioni raccolte]
 
 <!-- Compilare dai materiali raccolti ed eliminare le istruzioni e i segnaposto.
 Indicare esplicitamente le scelte assenti e le informazioni non raccolte.

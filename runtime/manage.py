@@ -18,7 +18,7 @@ import uuid
 import zipfile
 
 from catalog import required_files, safe_relative, skill_files, validate_catalog, validate_skill_names
-from common import DEFAULT_CONFIG, canonical, digest, https_url, locked, plain_path, validate_config
+from common import DEFAULT_CONFIG, bind_site, canonical, digest, https_url, installation_config, locked, plain_path, requested_site, site_tag, validate_config
 
 MAX_ARCHIVE = 8 * 1024 * 1024
 MANIFEST = "release-manifest.json"
@@ -163,7 +163,7 @@ def launcher_bytes(root, legacy=False, trtalks=False):
             + repr(str(script)) + "] + sys.argv[1:])\n").encode("utf-8")
 
 
-def guide_bytes(in_application=False):
+def guide_bytes(in_application=False, with_site=True):
     guide = ("# websmith-talks\n\n"
         "Le tipologie di conversazione installate sono dichiarate in `.websmith-talks/app/conversations.json`.\n"
         "Leggere il catalogo quando l'utente chiede una conversazione websmith-talks.\n"
@@ -177,12 +177,16 @@ def guide_bytes(in_application=False):
         guide = guide.replace(b".agents/skills/ID/", b".websmith-talks/app/skills/ID/")
         guide += ("\nUsare le istruzioni correnti nell’applicazione anche se una copia precedente della skill è presente in `.agents/skills/`.\n"
                   "La consegna usa esclusivamente send_email del connettore Gmail e le regole correnti in `.websmith-talks/app/runtime/references/invio.md`.\n").encode("utf-8")
+    if with_site:
+        guide += ("\nPrima di una conversazione leggere `./websmith-talks status`: `site` identifica l’unico sito associato.\n"
+                  "Non chiedere di scegliere un altro sito e non cambiare site.id. Se manca, richiedere l’ID di Websmith e usare configure --site-id.\n"
+                  "Le consegne email devono usare il tag [websmith:site.id] preparato dal runtime.\n").encode("utf-8")
     return guide
 
 
 def previous_guide_bytes(in_application=False):
     # The generated guide from TRTalks; custom project instructions stay intact.
-    return guide_bytes(in_application).replace(b"websmith-talks", b"trtalks").replace(b"# trtalks", b"# TRTalks").replace(
+    return guide_bytes(in_application, with_site=False).replace(b"websmith-talks", b"trtalks").replace(b"# trtalks", b"# TRTalks").replace(
         b"conversazione trtalks.", b"conversazione TRTalks.")
 
 
@@ -251,7 +255,7 @@ def staged_file(directory, name, data, mode=0o600):
     return path
 
 
-def install(root, raw, expected, release_url=None, update=False, dry_run=False, skills_in_application=False):
+def install(root, raw, expected, release_url=None, update=False, dry_run=False, skills_in_application=False, site=None, recipient=None):
     root = Path(root).expanduser().resolve()
     manifest, files = read_archive(raw, expected)
     state = plain_path(root / ".websmith-talks")
@@ -268,6 +272,11 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
         raise ValueError("websmith-talks già installato; usare update o il nuovo setup con --upgrade")
     if update and not old:
         raise ValueError("websmith-talks non installato")
+    previous_config = installation_config(old_state)
+    selected_config = bind_site(previous_config, site, required=True)
+    if recipient is not None:
+        selected_config["recipient"] = recipient
+    selected_config = validate_config(selected_config)
     if launcher.exists() and (migrating or launcher.read_bytes() != launcher_bytes(root)):
         raise ValueError("Il file websmith-talks esistente non appartiene all'installer")
     old_launcher = plain_path(root / "trtalks") if migrating else None
@@ -277,15 +286,20 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
         key = entry["id"]
         if plain_path(skill_root / key).exists() and key not in old_skills:
             raise ValueError("La skill " + key + " è già presente e non appartiene a websmith-talks")
-    if old and old["name"] == manifest["name"] and version_key(manifest["version"]) <= version_key(old["version"]):
+    if (old and old["name"] == manifest["name"]
+            and (version_key(manifest["version"]) < version_key(old["version"])
+                 or (version_key(manifest["version"]) == version_key(old["version"]) and selected_config == previous_config))):
         return {"changed": False, "version": old["version"], "reason": "already_current_or_newer"}
     if dry_run:
         return {"changed": False, "would_install": manifest["version"],
+                "site": selected_config["site"], "email_tag": site_tag(selected_config["site"]),
                 "skills": [s["id"] for s in manifest["catalog"]["skills"]], "root": str(root)}
     with locked(old_state / "manage.lock"), locked(old_state / "delivery.lock"):
         current, app_local, old_skills, legacy = inspect_installation(root)
         if current != old:
             raise ValueError("Installazione cambiata durante il download; ripetere update")
+        if installation_config(old_state) != previous_config:
+            raise ValueError("Configurazione cambiata durante il download; ripetere update")
         config = plain_path(old_state / "config.local.json")
         if config.exists() and not isinstance(json.loads(config.read_text()), dict):
             raise ValueError("Configurazione locale non valida; conservata")
@@ -360,11 +374,11 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
             if old_launcher and old_launcher.exists():
                 plan.append((old_launcher, None))
             local_config = json.loads(config.read_text()) if config.exists() else {}
-            migrated_config = validate_config(local_config)
+            migrated_config = selected_config
             if migrating or not config.exists() or migrated_config != local_config:
                 config_bytes = config.read_bytes() if config.exists() and migrated_config == local_config else canonical(migrated_config) + b"\n"
                 plan.append((state / "config.local.json", staged_file(temporary, "config", config_bytes)))
-            metadata.update(schema=2, installed=True, skills_in_application=skills_in_application)
+            metadata.update(schema=2, installed=True, skills_in_application=skills_in_application, site=migrated_config["site"])
             if release_url:
                 metadata["release_url"] = release_url.rstrip("/")
             elif migrating and metadata.get("release_url", "").startswith("https://github.com/AgileReloaded/TRTalks/releases/"):
@@ -373,7 +387,8 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
                 metadata.setdefault("release_url", DEFAULT_RELEASE_URL)
             plan.append((state / "install.json", staged_file(temporary, "metadata", canonical(metadata) + b"\n")))
             guide = plain_path(root / "AGENTS.md")
-            generated_guides = (guide_bytes(), guide_bytes(True), previous_guide_bytes(), previous_guide_bytes(True))
+            generated_guides = (guide_bytes(), guide_bytes(True), guide_bytes(False, False), guide_bytes(True, False),
+                                previous_guide_bytes(), previous_guide_bytes(True))
             if not guide.exists() or guide.read_bytes() in generated_guides:
                 plan.append((guide, staged_file(temporary, "guide", guide_bytes(skills_in_application), 0o644)))
             elif skills_in_application and guide.read_bytes() != guide_bytes(True):
@@ -411,6 +426,7 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
                     if previous_config.exists():
                         previous_config.unlink()
         return {"changed": True, "version": manifest["version"], "root": str(root),
+                "site": selected_config["site"], "email_tag": site_tag(selected_config["site"]),
                 "skills": sorted(new_ids), "codex_recognition_verified": False,
                 "local_configuration_preserved": True, "migrated_legacy_installation": legacy,
                 "migrated_trtalks_installation": migrating}
@@ -436,7 +452,7 @@ def download(url, limit):
     return raw
 
 
-def remote_update(root, release_url=None, dry_run=False):
+def remote_update(root, release_url=None, dry_run=False, site=None, recipient=None):
     root = Path(root).expanduser().resolve()
     current, _, _, _ = inspect_installation(root)
     if not current:
@@ -452,7 +468,7 @@ def remote_update(root, release_url=None, dry_run=False):
     matches = re.findall(r"(?m)^([a-f0-9]{64})  websmith-talks\.zip$", sums)
     if len(matches) != 1:
         raise ValueError("SHA256SUMS non valido")
-    return install(root, download(base + "/websmith-talks.zip", MAX_ARCHIVE), matches[0], base, update=True, dry_run=dry_run)
+    return install(root, download(base + "/websmith-talks.zip", MAX_ARCHIVE), matches[0], base, update=True, dry_run=dry_run, site=site, recipient=recipient)
 
 
 def uninstall(root):
@@ -494,14 +510,31 @@ def main(argv=None):
         part = commands.add_parser(command)
         part.add_argument("--root", type=Path, default=Path.home() / "websmith-talks")
         if command != "uninstall":
+            part.add_argument("--site-id")
+            part.add_argument("--site-name")
+            part.add_argument("--site-url")
+            part.add_argument("--recipient")
             part.add_argument("--release-url")
             part.add_argument("--dry-run", action="store_true")
             part.add_argument("--archive", type=Path)
             part.add_argument("--sha256")
         if command == "install":
             part.add_argument("--upgrade", action="store_true")
+            part.add_argument("--interactive", action="store_true")
     args = parser.parse_args(argv)
     try:
+        site = None
+        if args.command != "uninstall":
+            current_config = installation_config(installation_state(args.root.expanduser().resolve()))
+            if (getattr(args, "interactive", False) and args.site_id is None
+                    and current_config["site"] is None):
+                try:
+                    with open("/dev/tty", "r", encoding="utf-8") as reader, open("/dev/tty", "w", encoding="utf-8", buffering=1) as writer:
+                        writer.write("site.id del sito Websmith da associare: ")
+                        args.site_id = reader.readline().strip()
+                except OSError:
+                    raise ValueError("Specificare --site-id oppure WEBSMITH_TALKS_SITE_ID per l'installazione non interattiva")
+            site = requested_site(current_config, args.site_id, args.site_name, args.site_url)
         if args.command == "uninstall":
             result = uninstall(args.root)
         elif args.archive:
@@ -512,9 +545,9 @@ def main(argv=None):
             update = args.command == "update"
             if getattr(args, "upgrade", False):
                 update = inspect_installation(args.root.expanduser().resolve())[0] is not None
-            result = install(args.root, raw, args.sha256, args.release_url, update, args.dry_run)
+            result = install(args.root, raw, args.sha256, args.release_url, update, args.dry_run, site=site, recipient=args.recipient)
         elif args.command == "update":
-            result = remote_update(args.root, args.release_url, args.dry_run)
+            result = remote_update(args.root, args.release_url, args.dry_run, site=site, recipient=args.recipient)
         else:
             raise ValueError("L'installazione iniziale richiede un archivio verificato da setup.sh")
         print(json.dumps(result, ensure_ascii=False, indent=2))

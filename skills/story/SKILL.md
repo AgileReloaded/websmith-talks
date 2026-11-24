@@ -40,11 +40,15 @@ Leggere anche gli eventuali corrispondenti `*.local.md` accanto alle basi e in
 `.websmith-talks/overrides/story/` del progetto: integrano le regole e prevalgono sulle scelte
 che modificano. Gli aggiornamenti conservano questi file.
 
-Ricavare sito, pubblico e scopo dalle istruzioni del progetto o dalle indicazioni
-della persona. Se il sito manca, chiederlo una sola volta prima di adattare
-l'intervista; accettare «non ancora deciso» e registrarlo senza inventare nomi,
-domini o sezioni. Consultare le regole editoriali e di tono del sito, se
-disponibili, senza presumere che i suoi sorgenti siano in questo progetto.
+Prima della conversazione leggere `websmith-talks status` con il launcher del
+progetto e usare `site.id`, nome e indirizzo del sito associato, senza richiederli
+di nuovo. Ogni installazione serve un solo sito. Se una vecchia installazione
+non è associata, raccogliere lo stesso `site.id` di Websmith e usare
+`configure --site-id ID` prima di avviare una nuova intervista. Non dedurre l'ID
+dal dominio o dal nome. Per un altro sito usare un progetto separato, senza
+riassociare quello corrente. Ricavare pubblico e scopo dalle indicazioni ricevute.
+Consultare le regole editoriali e di tono del sito, se disponibili, senza
+presumere che i suoi sorgenti siano in questo progetto.
 Le risposte restano fedeli alla persona anche se il sito userà un diverso stile
 nell'articolo finale. Non assumere che il caso riguardi l'AI, un cliente esterno
 o una sezione chiamata Stories. I pannelli sono facoltativi: raccoglierli solo
@@ -77,7 +81,8 @@ riservati contrassegnati. Se l'autorizzazione è già stata data per la versione
 finale e la destinazione indicate, usarla senza ripetere la domanda.
 
 Eseguire la preparazione locale, chiamare direttamente `send_email` di Gmail con
-l’allegato e registrare la risposta reale: non fermarsi alla preparazione e non
+l’allegato e il tag `[websmith:site.id]` nell'oggetto preparato dal runtime.
+Non cambiare il tag o inviare il documento a un altro sito. Registrare la risposta reale: non fermarsi alla preparazione e non
 chiedere alla persona comandi manuali di invio. Non considerare l'installazione un'autorizzazione a spedire documenti.
 Non attivare l'invio o mandare email durante una verifica tecnica. Per gli
 aggiornamenti richiesti usare il launcher `websmith-talks update` nel progetto;
