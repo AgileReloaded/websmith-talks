@@ -74,7 +74,8 @@ site_args=(--interactive)
 [ -z "$recipient" ] || site_args+=(--recipient "$recipient")
 python3 "$temporary/manage.py" install --root "$install_root" --archive "$temporary/websmith-talks.zip" \
   --sha256 "$expected" --release-url "$release_base" --upgrade "${site_args[@]}"
+python3 "$install_root/.websmith-talks/app/runtime/websmith_talks.py" command-install
 echo "Apri la cartella $install_root nell'app Codex."
 echo 'Scrivi: Mostrami le tipologie di conversazione websmith-talks disponibili.'
-echo "Aggiornamento: $install_root/websmith-talks update"
+echo 'Nella cartella del progetto: websmith-talks update'
 echo 'Nessuna email inviata durante l’installazione.'

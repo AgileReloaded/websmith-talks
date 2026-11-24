@@ -21,7 +21,7 @@ def main():
     try:
         raw, sha = package((ROOT / "VERSION").read_text().strip())
         site = requested_site({}, args.site_id, args.site_name, args.site_url)
-        result = install(args.project_root, raw, sha, site=site, recipient=args.recipient)
+        result = install(args.project_root, raw, sha, site=site, recipient=args.recipient, source_root=ROOT)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (OSError, ValueError) as error:

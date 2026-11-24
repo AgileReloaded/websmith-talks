@@ -10,6 +10,12 @@ I download del bootstrap nei test sono sostituiti da file locali dichiarati.
 I test sui siti coprono setup con parametri o variabili, domanda nel terminale,
 associazione conservata, rifiuto di altri ID, rollback della configurazione,
 oggetto email con un solo tag e casella condivisa fra installazioni separate.
+I test dei comandi coprono registrazione del launcher, installazione nella
+cartella corrente, aggiornamento dalle sottocartelle, sorgenti locali, release
+verificate e conservazione dei comandi preesistenti personalizzati.
+Il percorso predefinito è verificato anche dal checkout: usa solo le release,
+ignora eventuali sorgenti precedenti e non ripiega sullo sviluppo in caso di
+errore di rete. L'uso locale richiede `--source` esplicito.
 
 I risultati Gmail nei test sono sintetici; nessuna email viene inviata.
 `websmith-talks status` legge solo la configurazione. Per una verifica reale senza email

@@ -270,7 +270,8 @@ class MigrationTests(unittest.TestCase):
                         'shutil.copyfile(Path(os.environ["TEST_RELEASE_ASSETS"]) / asset, args[args.index("-o") + 1])\n')
         curl.chmod(0o755)
         env = dict(os.environ, PATH=str(binaries) + os.pathsep + os.environ["PATH"],
-                   TEST_RELEASE_ASSETS=str(assets), WEBSMITH_TALKS_HOME=str(self.root), WEBSMITH_TALKS_SITE_ID="example")
+                   TEST_RELEASE_ASSETS=str(assets), WEBSMITH_TALKS_HOME=str(self.root), WEBSMITH_TALKS_SITE_ID="example",
+                   WEBSMITH_TALKS_BIN_DIR=str(binaries))
         command = ["bash", str(assets / "setup.sh")]
         if via_arguments:
             env.pop("WEBSMITH_TALKS_SITE_ID", None)

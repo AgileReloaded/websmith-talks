@@ -8,6 +8,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
+import shlex
 import stat
 import subprocess
 import sys
@@ -255,7 +256,7 @@ def staged_file(directory, name, data, mode=0o600):
     return path
 
 
-def install(root, raw, expected, release_url=None, update=False, dry_run=False, skills_in_application=False, site=None, recipient=None):
+def install(root, raw, expected, release_url=None, update=False, dry_run=False, skills_in_application=False, site=None, recipient=None, source_root=None):
     root = Path(root).expanduser().resolve()
     manifest, files = read_archive(raw, expected)
     state = plain_path(root / ".websmith-talks")
@@ -277,6 +278,10 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
     if recipient is not None:
         selected_config["recipient"] = recipient
     selected_config = validate_config(selected_config)
+    previous_metadata_path = plain_path(old_state / "install.json")
+    previous_metadata = json.loads(previous_metadata_path.read_text()) if previous_metadata_path.exists() else {}
+    source_change = (source_root is not None and previous_metadata.get("source_root") != str(Path(source_root).expanduser().resolve()))
+    source_change = source_change or (source_root is None and release_url is not None and "source_root" in previous_metadata)
     if launcher.exists() and (migrating or launcher.read_bytes() != launcher_bytes(root)):
         raise ValueError("Il file websmith-talks esistente non appartiene all'installer")
     old_launcher = plain_path(root / "trtalks") if migrating else None
@@ -288,7 +293,8 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
             raise ValueError("La skill " + key + " è già presente e non appartiene a websmith-talks")
     if (old and old["name"] == manifest["name"]
             and (version_key(manifest["version"]) < version_key(old["version"])
-                 or (version_key(manifest["version"]) == version_key(old["version"]) and selected_config == previous_config))):
+                 or (version_key(manifest["version"]) == version_key(old["version"]) and selected_config == previous_config
+                     and not source_change and not (source_root and old["files"] != manifest["files"])))):
         return {"changed": False, "version": old["version"], "reason": "already_current_or_newer"}
     if dry_run:
         return {"changed": False, "would_install": manifest["version"],
@@ -379,6 +385,10 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
                 config_bytes = config.read_bytes() if config.exists() and migrated_config == local_config else canonical(migrated_config) + b"\n"
                 plan.append((state / "config.local.json", staged_file(temporary, "config", config_bytes)))
             metadata.update(schema=2, installed=True, skills_in_application=skills_in_application, site=migrated_config["site"])
+            if source_root is not None:
+                metadata["source_root"] = str(Path(source_root).expanduser().resolve())
+            elif release_url:
+                metadata.pop("source_root", None)
             if release_url:
                 metadata["release_url"] = release_url.rstrip("/")
             elif migrating and metadata.get("release_url", "").startswith("https://github.com/AgileReloaded/TRTalks/releases/"):
@@ -442,7 +452,7 @@ class HttpsRedirect(urllib.request.HTTPRedirectHandler):
 
 def download(url, limit):
     https_url(url)
-    request = urllib.request.Request(url, headers={"User-Agent": "websmith-talks-Updater/0.6"})
+    request = urllib.request.Request(url, headers={"User-Agent": "websmith-talks-Updater/0.8"})
     with urllib.request.build_opener(HttpsRedirect()).open(request, timeout=20) as response:
         if response.status != 200:
             raise ValueError("Download non riuscito")
@@ -450,6 +460,34 @@ def download(url, limit):
     if len(raw) > limit:
         raise ValueError("Download troppo grande")
     return raw
+
+
+def source_install(root, source, *, update=False, dry_run=False, site=None, recipient=None):
+    source = plain_path(Path(source).expanduser().resolve())
+    builder = plain_path(source / "scripts/build_release.py")
+    if not builder.is_file():
+        raise ValueError("Sorgenti locali non disponibili: " + str(source) + "; usare --release-url per una release pubblicata")
+    with tempfile.TemporaryDirectory(prefix="websmith-talks-source-") as directory:
+        output = Path(directory)
+        result = subprocess.run([sys.executable, str(builder), "--output", str(output)],
+            capture_output=True, text=True, timeout=60,
+            env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
+        if result.returncode:
+            raise ValueError("Build dei sorgenti non riuscita: " + result.stderr[:500])
+        metadata = json.loads((output / "release.json").read_text())
+        raw = (output / "websmith-talks.zip").read_bytes()
+        return install(root, raw, metadata["sha256"], update=update, dry_run=dry_run,
+                       site=site, recipient=recipient, source_root=source)
+
+
+def remote_install(root, release_url=None, *, update=False, dry_run=False, site=None, recipient=None):
+    base = https_url((release_url or DEFAULT_RELEASE_URL).rstrip("/"))
+    sums = download(base + "/SHA256SUMS", 65536).decode("ascii")
+    matches = re.findall(r"(?m)^([a-f0-9]{64})  websmith-talks\.zip$", sums)
+    if len(matches) != 1:
+        raise ValueError("SHA256SUMS non valido")
+    return install(root, download(base + "/websmith-talks.zip", MAX_ARCHIVE), matches[0], base,
+                   update=update, dry_run=dry_run, site=site, recipient=recipient)
 
 
 def remote_update(root, release_url=None, dry_run=False, site=None, recipient=None):
@@ -463,12 +501,81 @@ def remote_update(root, release_url=None, dry_run=False, site=None, recipient=No
         base = DEFAULT_RELEASE_URL
     if not base:
         raise ValueError("URL di distribuzione mancante: specificare --release-url")
-    base = https_url(base.rstrip("/"))
-    sums = download(base + "/SHA256SUMS", 65536).decode("ascii")
-    matches = re.findall(r"(?m)^([a-f0-9]{64})  websmith-talks\.zip$", sums)
-    if len(matches) != 1:
-        raise ValueError("SHA256SUMS non valido")
-    return install(root, download(base + "/websmith-talks.zip", MAX_ARCHIVE), matches[0], base, update=True, dry_run=dry_run, site=site, recipient=recipient)
+    return remote_install(root, base, update=True, dry_run=dry_run, site=site, recipient=recipient)
+
+
+def command_bytes(fallback=None, legacy=False):
+    fallback_code = repr(str(fallback)) if fallback is not None else 'str(Path(__file__).resolve().parent / "runtime/websmith_talks.py")'
+    code = '''#!/usr/bin/env python3
+# Managed websmith-talks command __VERSION__
+import os
+from pathlib import Path
+import sys
+
+FALLBACK = __FALLBACK__
+arguments = sys.argv[1:]
+explicit_root = None
+command = None
+index = 0
+while index < len(arguments):
+    item = arguments[index]
+    if item == "--root" and index + 1 < len(arguments):
+        explicit_root = arguments[index + 1]
+        index += 2
+        continue
+    if item.startswith("--root="):
+        explicit_root = item.split("=", 1)[1]
+    elif command is None and not item.startswith("-"):
+        command = item
+    index += 1
+root = Path(explicit_root).expanduser().resolve() if explicit_root else Path.cwd()
+if not explicit_root and command not in ("install", "command-install"):
+    for candidate in (root, *root.parents):
+        if (candidate / ".websmith-talks").exists() or (candidate / ".trtalks").exists():
+            root = candidate
+            break
+runtime = root / ".websmith-talks/app/runtime/websmith_talks.py"
+__ROUTING__
+    runtime = Path(FALLBACK)
+if not runtime.is_file():
+    sys.exit("Runtime websmith-talks non disponibile: registrare nuovamente il comando da un'installazione o dai sorgenti.")
+os.execv(sys.executable, [sys.executable, str(runtime), "--root", str(root), *arguments])
+'''
+    routing = 'if not runtime.is_file() or command in ("install", "update", "command-install"):'
+    if legacy:
+        routing = ('source_command = (Path(FALLBACK).parent.parent / "scripts/build_release.py").is_file()\n'
+                   'if (not runtime.is_file() or command in ("install", "command-install")\n'
+                   '        or (command == "update" and source_command)):')
+    return code.replace("__FALLBACK__", fallback_code).replace("__VERSION__", "v1" if legacy else "v2").replace("__ROUTING__", routing).encode("utf-8")
+
+
+def register_command(fallback, bin_dir=None):
+    fallback = plain_path(Path(fallback).expanduser().resolve())
+    if not fallback.is_file():
+        raise ValueError("Runtime del comando non disponibile")
+    directory = plain_path(Path(bin_dir or os.environ.get("WEBSMITH_TALKS_BIN_DIR") or Path.home() / ".local/bin").expanduser().resolve())
+    target = plain_path(directory / "websmith-talks")
+    raw = command_bytes(fallback)
+    if target.exists() and target.read_bytes() != raw:
+        previous = target.read_bytes()
+        try:
+            tree = ast.parse(previous.decode("utf-8"))
+            assignment = next(n for n in tree.body if isinstance(n, ast.Assign)
+                              and any(isinstance(t, ast.Name) and t.id == "FALLBACK" for t in n.targets))
+            old_fallback = ast.literal_eval(assignment.value)
+            managed = isinstance(old_fallback, str) and previous in (command_bytes(old_fallback), command_bytes(old_fallback, legacy=True))
+        except (ValueError, SyntaxError, StopIteration, UnicodeError):
+            managed = False
+        if not managed:
+            raise ValueError("Il comando esistente è personalizzato o appartiene a un altro programma; conservato: " + str(target))
+    if not target.exists() or target.read_bytes() != raw:
+        directory.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix=".websmith-talks-command-", dir=str(directory)) as temporary:
+            staged = staged_file(Path(temporary), "command", raw, 0o755)
+            os.replace(staged, target)
+    in_path = any(Path(p).expanduser().resolve() == directory for p in os.environ.get("PATH", "").split(os.pathsep) if p)
+    return {"command_installed": True, "command_path": str(target), "directory_in_path": in_path,
+            "path_command": None if in_path else 'export PATH=' + shlex.quote(str(directory)) + ':"$PATH"'}
 
 
 def uninstall(root):
@@ -504,12 +611,13 @@ def uninstall(root):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(prog="websmith-talks", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     for command in ("install", "update", "uninstall"):
         part = commands.add_parser(command)
         part.add_argument("--root", type=Path, default=Path.home() / "websmith-talks")
         if command != "uninstall":
+            part.add_argument("--source", type=Path, help="Sorgenti locali; non scarica una release")
             part.add_argument("--site-id")
             part.add_argument("--site-name")
             part.add_argument("--site-url")
@@ -537,6 +645,13 @@ def main(argv=None):
             site = requested_site(current_config, args.site_id, args.site_name, args.site_url)
         if args.command == "uninstall":
             result = uninstall(args.root)
+        elif args.source:
+            if args.archive or args.release_url:
+                raise ValueError("Usare --source oppure --archive/--release-url, senza combinarli")
+            update = args.command == "update"
+            if getattr(args, "upgrade", False):
+                update = inspect_installation(args.root.expanduser().resolve())[0] is not None
+            result = source_install(args.root, args.source, update=update, dry_run=args.dry_run, site=site, recipient=args.recipient)
         elif args.archive:
             if not args.sha256:
                 raise ValueError("Specificare --sha256 per il pacchetto locale")
@@ -549,7 +664,8 @@ def main(argv=None):
         elif args.command == "update":
             result = remote_update(args.root, args.release_url, args.dry_run, site=site, recipient=args.recipient)
         else:
-            raise ValueError("L'installazione iniziale richiede un archivio verificato da setup.sh")
+            update = getattr(args, "upgrade", False) and inspect_installation(args.root.expanduser().resolve())[0] is not None
+            result = remote_install(args.root, args.release_url, update=update, dry_run=args.dry_run, site=site, recipient=args.recipient)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile, subprocess.SubprocessError) as error:

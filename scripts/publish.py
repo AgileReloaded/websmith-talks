@@ -10,7 +10,7 @@ import tempfile
 
 from build_release import ROOT, build
 
-SOURCE_PATHS = [".gitignore", "README.md", "VERSION", "conversations.json", "setup.sh",
+SOURCE_PATHS = [".gitignore", "README.md", "VERSION", "conversations.json", "setup.sh", "websmith-talks",
                 "runtime", "skills", "scripts", "tests", "docs"]
 
 
@@ -98,7 +98,7 @@ def publish(repo, dry_run=False):
         if "HTTP 404" not in release.stderr:
             raise RuntimeError(release.stderr.strip())
         notes = ROOT / "dist/release-notes.md"
-        notes.write_text("websmith-talks " + metadata["version"] + "\n\nSkill story e page, comando websmith-talks e stato in .websmith-talks. Un sito per installazione, site.id condiviso con Websmith e tag email [websmith:site.id]. Il setup richiede --site-id; gli aggiornamenti conservano il sito e rifiutano un ID diverso. Migrazione delle installazioni TRTalks con il nuovo installer, conservando configurazione, documenti, regole locali e ricevute.\n\nConsegna tramite il connettore Gmail dell’app, senza credenziali di posta locali. Installazione HTTPS con checksum e aggiornamento conservativo. Voce e riconoscimento delle skill da collaudare nell’app.\n", encoding="utf-8")
+        notes.write_text("websmith-talks " + metadata["version"] + "\n\nComandi websmith-talks install e websmith-talks update, registrazione nel terminale, installazione e aggiornamento dalle release GitHub su ogni computer; sorgenti locali solo con --source esplicito. Skill story e page e stato in .websmith-talks. Un sito per installazione, site.id condiviso con Websmith e tag email [websmith:site.id]. Il setup richiede --site-id; gli aggiornamenti conservano il sito e rifiutano un ID diverso. Migrazione delle installazioni TRTalks con il nuovo installer, conservando configurazione, documenti, regole locali e ricevute.\n\nConsegna tramite il connettore Gmail dell’app, senza credenziali di posta locali. Installazione HTTPS con checksum e aggiornamento conservativo. Voce e riconoscimento delle skill da collaudare nell’app.\n", encoding="utf-8")
         assets = [str(ROOT / "dist" / name) for name in ("websmith-talks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html")]
         command(["gh", "release", "create", tag, *assets, "--repo", repo, "--verify-tag", "--draft",
                  "--title", "websmith-talks " + metadata["version"], "--notes-file", str(notes)])

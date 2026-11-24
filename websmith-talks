@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# Managed websmith-talks command v2
+import os
+from pathlib import Path
+import sys
+
+FALLBACK = str(Path(__file__).resolve().parent / "runtime/websmith_talks.py")
+arguments = sys.argv[1:]
+explicit_root = None
+command = None
+index = 0
+while index < len(arguments):
+    item = arguments[index]
+    if item == "--root" and index + 1 < len(arguments):
+        explicit_root = arguments[index + 1]
+        index += 2
+        continue
+    if item.startswith("--root="):
+        explicit_root = item.split("=", 1)[1]
+    elif command is None and not item.startswith("-"):
+        command = item
+    index += 1
+root = Path(explicit_root).expanduser().resolve() if explicit_root else Path.cwd()
+if not explicit_root and command not in ("install", "command-install"):
+    for candidate in (root, *root.parents):
+        if (candidate / ".websmith-talks").exists() or (candidate / ".trtalks").exists():
+            root = candidate
+            break
+runtime = root / ".websmith-talks/app/runtime/websmith_talks.py"
+if not runtime.is_file() or command in ("install", "update", "command-install"):
+    runtime = Path(FALLBACK)
+if not runtime.is_file():
+    sys.exit("Runtime websmith-talks non disponibile: registrare nuovamente il comando da un'installazione o dai sorgenti.")
+os.execv(sys.executable, [sys.executable, str(runtime), "--root", str(root), *arguments])

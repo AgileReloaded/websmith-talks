@@ -8,7 +8,8 @@ domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione di sviluppo **0.7.0a1**: un sito per installazione e tag email
+Versione di sviluppo **0.8.0a1**: comandi `websmith-talks install` e
+`websmith-talks update`, un sito per installazione e tag email
 `[websmith:site.id]` compatibile con Websmith. Il comando è `websmith-talks`,
 le skill sono `story` e `page` e lo stato è in `.websmith-talks`.
 La consegna resta Gmail: il mittente è l’account Google collegato all’app.
@@ -23,12 +24,63 @@ Il collegamento Google si effettua nell’app. websmith-talks non richiede
 password, host, porte o variabili di connessione. Se il tool non è disponibile
 nella chat, l’agente lo segnala e conserva il documento.
 
-Il comando seguente sarà utilizzabile dopo la pubblicazione della prima release
-nel nuovo repository; questa modifica ai sorgenti non pubblica una release:
+### Comando dal terminale
+
+Dalla cartella dei sorgenti, registrare una sola volta il comando:
+
+```bash
+./websmith-talks command-install
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Il comando viene scritto in `~/.local/bin/websmith-talks`. Se quella directory
+non è già nel PATH, aggiungere la riga `export` al profilo della propria shell
+per mantenerla nei terminali successivi. Un comando preesistente personalizzato
+non viene sovrascritto. `WEBSMITH_TALKS_BIN_DIR` o `--bin-dir` permettono di
+scegliere una directory diversa.
+
+Poi, nella cartella che dovrà ospitare il progetto:
+
+```bash
+websmith-talks install
+websmith-talks update
+```
+
+`install` usa la cartella corrente e chiede il `site.id` nel terminale.
+È possibile indicare `--site-id`, `--site-name`, `--site-url`, `--recipient` e
+`--root` direttamente. `update` ritrova il progetto anche dalle sottocartelle.
+Si possono mantenere installazioni separate per siti diversi.
+
+`install` e `update` scaricano sempre la release pubblicata su GitHub e
+verificano il checksum, anche quando il comando è registrato dal checkout dei
+sorgenti. Commit, push o modifiche locali non aggiornano la versione distribuita:
+per provare il normale percorso utente occorre pubblicare una release.
+Se GitHub non è disponibile, l'operazione fallisce senza usare i sorgenti locali
+come alternativa automatica.
+
+Per lavorare sui sorgenti prima di una release usare esplicitamente:
+
+```bash
+websmith-talks install --source /percorso/websmith-talks
+websmith-talks update --source /percorso/websmith-talks
+```
+
+L'opzione va specificata a ogni operazione di sviluppo. Un successivo `update`
+senza opzioni torna a controllare le release, anche per un progetto installato
+in precedenza dai sorgenti. Il percorso locale conservato nei metadati è solo
+un riferimento e non seleziona il comportamento degli aggiornamenti.
+`--release-url URL` permette di scegliere una distribuzione remota alternativa.
+Tutte le modalità conservano configurazioni, documenti, ricevute e sito associato.
+
+Il bootstrap pubblico scarica la versione della release pubblicata su GitHub:
 
 ```bash
 curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh | bash
 ```
+
+Il bootstrap registra anche il comando nel terminale; verificare che
+`~/.local/bin` sia nel PATH. Successivamente usare `websmith-talks install`
+nelle nuove cartelle e `websmith-talks update` nei progetti esistenti.
 
 Aprire la cartella websmith-talks nell’app e scrivere:
 
@@ -44,7 +96,7 @@ Durante il setup indicare lo stesso `site.id` presente nel `websmith.yaml`
 del sito gestito da Websmith. L'ID viene copiato esattamente: lettere minuscole,
 numeri e trattini, senza ricavarlo dal nome o dall'indirizzo del sito.
 Il setup lo chiede nel terminale se non è già configurato. Per un'installazione
-non interattiva, dopo la pubblicazione della release:
+non interattiva:
 
 ```bash
 curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh -o /tmp/websmith-talks-setup.sh
@@ -63,8 +115,7 @@ per un altro sito usare un'altra cartella. Nome e URL sono modificabili con
 Le due applicazioni restano separate: l'identificativo comune consente a
 Websmith di selezionare le consegne destinate al proprio sito.
 
-Page è presente nei sorgenti di sviluppo; sarà disponibile nell'installer
-pubblico dopo la prossima release. Le domande sono in
+Page è inclusa nel pacchetto insieme a Story. Le domande sono in
 [skills/page/references/domande.md](skills/page/references/domande.md).
 La bozza viene salvata come `drafts/pagina-<slug>.md`, con suffisso se il file
 esiste già. Include i testi e le indicazioni di realizzazione separate, con
@@ -76,7 +127,7 @@ Le nuove installazioni non hanno un destinatario email predefinito. Le bozze
 locali si possono creare subito; per una consegna indicare la casella corretta:
 
 ```bash
-~/websmith-talks/websmith-talks configure --recipient redazione@example.org
+websmith-talks configure --recipient redazione@example.org
 ```
 
 Restano disponibili `--name` (autore nel corpo email), `--email` (Reply-To),
@@ -126,9 +177,9 @@ fittizio locale. Nessun test tecnico autorizza una spedizione.
 ## Aggiornamenti
 
 ```bash
-~/websmith-talks/websmith-talks update --dry-run
-~/websmith-talks/websmith-talks update
-~/websmith-talks/websmith-talks uninstall
+websmith-talks update --dry-run
+websmith-talks update
+websmith-talks uninstall
 ```
 
 L’aggiornamento conserva destinatario, preferenze, bozze, ricevute e regole
@@ -140,7 +191,7 @@ conserva i documenti e lo stato delle consegne.
 ## Passaggio da TRTalks
 
 Usare il **nuovo installer** indicando la cartella dell’installazione esistente,
-senza rinominarla o spostarla prima. Dopo la pubblicazione della release:
+senza rinominarla o spostarla prima:
 
 ```bash
 curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh -o /tmp/websmith-talks-setup.sh
@@ -182,7 +233,7 @@ il sito associato sia il destinatario configurato.
 ```bash
 python3 -m unittest discover -s tests -v
 python3 scripts/build_release.py --output dist
-python3 scripts/install_local.py --project-root /percorso/talks-example --site-id example
+./websmith-talks install --source "$PWD" --root /percorso/talks-example --site-id example
 ```
 
 Il connettore Gmail è invocato dall’agente nell’app, non dal processo Python.

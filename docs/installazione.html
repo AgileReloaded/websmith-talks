@@ -17,6 +17,7 @@
 <p>Servono macOS o Linux, Python 3.9 o successivo e l’app Codex con il tuo accesso. Apri il Terminale e incolla il comando:</p>
 <pre id="install">URL di distribuzione non ancora configurato.</pre>
 <button id="copy" disabled>Copia comando</button>
+<p>Dopo il primo setup, con <code>~/.local/bin</code> nel PATH, puoi usare direttamente <code>websmith-talks install</code> in una nuova cartella e <code>websmith-talks update</code> in un progetto esistente. Il sito viene chiesto solo alla prima installazione.</p>
 <p><small>L’installazione crea la cartella websmith-talks nella tua cartella personale. Non invia email.</small></p>
 <p>Il setup chiede il <code>site.id</code> del sito Websmith. Copia esattamente il valore dal suo <code>websmith.yaml</code>. Nome e indirizzo sono facoltativi. Per un altro sito usa una cartella separata; gli aggiornamenti mantengono l’associazione esistente.</p>
 <p>Per uso non interattivo puoi scaricare lo script e passare <code>--site-id ID</code>, <code>--root CARTELLA</code>, <code>--site-name NOME</code>, <code>--site-url URL</code> e <code>--recipient EMAIL</code>. Le consegne includono il tag <code>[websmith:site.id]</code> nell’oggetto.</p>
@@ -25,15 +26,15 @@
 <h2>3. Apri websmith-talks in Codex</h2>
 <p>Aggiungi la cartella <code>~/websmith-talks</code> come progetto e scegli la skill:</p>
 <!-- websmith-talks:skills --><ul><li><strong>Story</strong> — raccoglie case histories ed esperienze per il sito di destinazione.<br><code>Usa $story</code></li><li><strong>Page</strong> — prepara contenuti e indicazioni per una pagina web.<br><code>Usa $page</code></li></ul><!-- /websmith-talks:skills -->
-<p><small>Page sarà disponibile nell’installer pubblico con la prossima release.</small></p>
+<p><small>Story e Page sono incluse nello stesso pacchetto.</small></p>
 <p>Puoi anche chiedere all’assistente di mostrarti le conversazioni websmith-talks disponibili.</p>
 <p>Puoi correggere una risposta, saltare una domanda o concludere. Alla fine ricevi il file completo. La conversazione può essere testuale; la disponibilità della voce va verificata nella tua app.</p>
 <h2>4. Rivedi il documento</h2>
 <p>Page salva una bozza con i testi e le indicazioni per template, hero, CTA e link, senza pubblicare sul sito. Se chiedi anche la consegna alla redazione, l’assistente mostra il documento e raccoglie la tua autorizzazione. Poi prepara l’allegato e lo invia con Gmail: non devi lanciare comandi di invio.</p>
 <p class="note">Il mittente è l’account Google collegato. Non c’è un destinatario predefinito: indica all’assistente la casella a cui consegnare il documento. Gli indirizzi già configurati sono conservati. Se Gmail non è disponibile o la consegna fallisce, il documento rimane disponibile e l’assistente indica l’esito effettivo.</p>
 <h2>Aggiorna o disinstalla</h2>
-<pre>~/websmith-talks/websmith-talks update
-~/websmith-talks/websmith-talks uninstall</pre>
+<pre>websmith-talks update
+websmith-talks uninstall</pre>
 <p>Gli aggiornamenti conservano impostazioni locali, bozze e stato degli invii. La disinstallazione disattiva la skill e conserva i tuoi documenti.</p>
 <h2>Passaggio da TRTalks</h2>
 <p>Usa il nuovo installer indicando la cartella esistente con <code>WEBSMITH_TALKS_HOME</code> e il sito con <code>--site-id ID</code>. Il vecchio comando <code>trtalks update</code> non comprende il nuovo pacchetto. Configurazioni, bozze, regole locali e ricevute vengono conservate; lo stato diventa <code>.websmith-talks</code> e le skill diventano <code>story</code> e <code>page</code>. Le istruzioni complete sono nel README del repository.</p>

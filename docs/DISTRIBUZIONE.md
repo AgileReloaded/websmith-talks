@@ -8,6 +8,15 @@ vengono distribuite. I sorgenti salvati non aggiornano la release pubblica.
 Il repository è `AgileReloaded/websmith-talks`; il pacchetto è
 `websmith-talks.zip` e il suo prefisso interno è `websmith-talks/`.
 Il launcher installato è `websmith-talks`, con le skill `story` e `page`.
+Il bootstrap registra anche il comando globale in `~/.local/bin`; la directory
+deve essere nel PATH. `websmith-talks install` installa nella cartella corrente,
+`websmith-talks update` aggiorna il progetto anche da una sottocartella.
+Dal checkout locale, `./websmith-talks command-install` registra lo stesso comando
+usato nelle installazioni distribuite: installazione e aggiornamento scaricano
+le release HTTPS con checksum. Per usare il nuovo comportamento nel normale
+percorso utente è necessaria una release. Lo sviluppo locale richiede l'opzione
+esplicita `--source CARTELLA` a ogni installazione o aggiornamento; non viene
+selezionato automaticamente dal checkout o dai metadati precedenti.
 Il setup richiede `site.id`, tramite domanda nel terminale, `--site-id` o
 `WEBSMITH_TALKS_SITE_ID`. Nome, URL e destinatario sono facoltativi.
 Ogni cartella serve un solo sito: update e configure rifiutano un ID diverso.

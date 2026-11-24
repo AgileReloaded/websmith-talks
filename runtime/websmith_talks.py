@@ -23,16 +23,36 @@ def version():
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog="websmith-talks", description=__doc__)
+    parser = argparse.ArgumentParser(prog="websmith-talks", description=__doc__, add_help=False)
+    parser.add_argument("-h", "--help", action="store_true", help="Mostra le istruzioni del comando")
     parser.add_argument("--version", action="version", version=version())
     parser.add_argument("--root", type=Path)
-    parser.add_argument("command", choices=["update", "uninstall", "configure", "status", "probe",
+    parser.add_argument("command", nargs="?", choices=["install", "update", "command-install", "uninstall", "configure", "status", "probe",
                                            "dry-run", "send", "retry", "record-result", "skills", "paths"])
     args, remaining = parser.parse_known_args(argv)
-    root = args.root or (APPLICATION.parent.parent if APPLICATION.parent.name == ".websmith-talks" else Path.cwd())
+    if args.help:
+        if args.command in ("install", "update", "uninstall", "configure", "command-install"):
+            remaining.append("--help")
+        else:
+            parser.print_help()
+            return 0
+    if args.command is None:
+        parser.error("Specificare un comando, per esempio install o update")
+    root = args.root or (APPLICATION.parent.parent if APPLICATION.parent.name == ".websmith-talks" and args.command != "install" else Path.cwd())
     root = root.expanduser().resolve()
-    if (root / ".trtalks").exists() and args.command != "update":
+    if not args.help and (root / ".trtalks").exists() and args.command not in ("install", "update", "command-install"):
         parser.error("Installazione TRTalks da migrare: eseguire il nuovo installer con --upgrade")
+    if args.command == "command-install":
+        command_parser = argparse.ArgumentParser(prog="websmith-talks command-install")
+        command_parser.add_argument("--bin-dir", type=Path)
+        values = command_parser.parse_args(remaining)
+        try:
+            result = manage.register_command(APPLICATION / "runtime/websmith_talks.py", values.bin_dir)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0
+        except (OSError, ValueError) as error:
+            print(json.dumps({"command_installed": False, "error": str(error)}, ensure_ascii=False))
+            return 1
     if args.command in ("skills", "paths"):
         if remaining:
             parser.error("Argomenti non riconosciuti: " + " ".join(remaining))
@@ -55,7 +75,11 @@ def main(argv=None):
                                  for entry in catalog["skills"]}}
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
-    if args.command in ("update", "uninstall"):
+    if args.command in ("install", "update", "uninstall"):
+        if args.command in ("install", "update"):
+            supplied = {item.split("=", 1)[0] for item in remaining}
+            if args.command == "install" and "--interactive" not in supplied:
+                remaining.append("--interactive")
         return manage.main([args.command, "--root", str(root), *remaining])
     if args.command in ("send", "retry", "record-result", "dry-run", "status", "probe"):
         return send_document.main(["--root", str(root), args.command, *remaining])
