@@ -56,7 +56,7 @@ class GmailDeliveryTests(unittest.TestCase):
         self.assertFalse((self.root / '.websmith-talks/deliveries').exists())
 
     def test_missing_recipient_blocks_preparation_without_creating_delivery_state(self):
-        atomic_json(self.config, dict(DEFAULT_CONFIG, site={"id": "example"}))
+        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient='', site={"id": "example"}))
         status = delivery.status(self.root)
         self.assertFalse(status['recipient_configured'])
         self.assertEqual(status['recipient'], '')

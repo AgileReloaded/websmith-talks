@@ -28,7 +28,7 @@ class ConfigTests(unittest.TestCase):
         current = load_config(self.root)
         self.assertEqual(current['transport'], 'gmail')
         self.assertTrue(current['send_enabled'])
-        self.assertEqual(current['recipient'], '')
+        self.assertEqual(current['recipient'], 'trtalks@techreloaded.it')
         self.assertFalse(any(k.startswith('smtp_') for k in current))
         self.assertEqual(self.path.stat().st_mode & 0o777, 0o600)
 

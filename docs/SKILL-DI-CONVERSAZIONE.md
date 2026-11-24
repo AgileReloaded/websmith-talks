@@ -2,7 +2,7 @@
 
 websmith-talks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
 **Story** raccoglie case histories e si invoca con `$story`; **Page** prepara
-pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a3.
+pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a4.
 Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
 I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
@@ -77,7 +77,10 @@ Nel progetto installato:
 Se `AGENTS.md` non esiste, l’installer crea una breve istruzione generale:
 scegliere la skill coerente con la richiesta; con una richiesta generica e una
 sola skill usare quella, con più skill chiedere quale. Le istruzioni specifiche
-di progetto già esistenti non vengono sovrascritte o cancellate.
+di progetto già esistenti non vengono sovrascritte o cancellate. Le istruzioni
+generate nelle versioni precedenti vengono riconosciute e aggiornate. Anche le
+richieste tecniche leggono status, paths e i riferimenti comuni dell’installazione
+corrente: il nome del sito non identifica una seconda applicazione da cercare.
 
 Gli aggiornamenti gestiscono l’insieme delle skill dichiarate. Le skill rimosse
 dal catalogo vengono disattivate e conservate nei backup, incluse le rispettive
@@ -109,12 +112,16 @@ launcher, skill, configurazione e istruzioni precedenti.
 
 ## Verifiche e limiti
 
-Il runtime 0.8.0a3 prepara la consegna per `send_email` del connettore Gmail.
+Il runtime 0.8.0a4 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
 nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
-Le nuove installazioni hanno il destinatario vuoto: la consegna richiede
-`configure --recipient INDIRIZZO`, su indicazione della persona. Gli aggiornamenti
-conservano gli indirizzi esistenti, compresi quelli delle installazioni TRTalks.
+Le nuove installazioni hanno come destinatario `trtalks@techreloaded.it`.
+`configure --recipient INDIRIZZO` permette di personalizzarlo. Gli aggiornamenti
+conservano gli indirizzi esistenti, compresi quelli delle installazioni TRTalks
+e quelli esplicitamente vuoti. In quest’ultimo caso configurare il destinatario
+una volta oppure passare `--recipient` a update. Story annuncia la consegna
+automatica all’inizio e la completa alla conclusione senza una seconda conferma,
+salvo richiesta di sola bozza o non invio. Page conserva la consegna su richiesta.
 Il setup richiede `--site-id` (o la risposta nel terminale), uguale a `site.id`
 del `websmith.yaml` di Websmith. Nel terminale chiede anche il nome se non è
 stato fornito; Invio accetta l'ID come nome. Negli aggiornamenti il sito già

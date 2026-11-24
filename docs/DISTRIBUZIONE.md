@@ -18,7 +18,10 @@ percorso utente è necessaria una release. Lo sviluppo locale richiede l'opzione
 esplicita `--source CARTELLA` a ogni installazione o aggiornamento; non viene
 selezionato automaticamente dal checkout o dai metadati precedenti.
 Il setup richiede `site.id`, tramite domanda nel terminale, `--site-id` o
-`WEBSMITH_TALKS_SITE_ID`. Nome, URL e destinatario sono facoltativi.
+`WEBSMITH_TALKS_SITE_ID`. Nome, URL e destinatario sono facoltativi. Le nuove
+installazioni usano `trtalks@techreloaded.it`; i destinatari già salvati vengono
+conservati. Story consegna automaticamente il Markdown a fine intervista, salvo
+richiesta di sola bozza o non invio, tramite il Gmail collegato nell’app del collega.
 Ogni cartella serve un solo sito: update e configure rifiutano un ID diverso.
 I metadati del sito restano locali e le nuove consegne usano `[websmith:site.id]`.
 Per il passaggio da TRTalks usare il nuovo bootstrap sulla cartella esistente:

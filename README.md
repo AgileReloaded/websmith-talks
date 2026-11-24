@@ -1,20 +1,22 @@
 # websmith-talks
 
 websmith-talks raccoglie conversazioni nell’app Codex. **Story** conduce interviste
-su casi reali e prepara un resoconto Markdown. **Page** raccoglie contenuti
+su casi reali e consegna il resoconto Markdown via Gmail a fine intervista.
+**Page** raccoglie contenuti
 e indicazioni per una pagina web: scopo, destinatari, titolo, abstract, corpo,
 CTA, template, hero, posizione e collegamenti. Le conversazioni seguono una
 domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione di sviluppo **0.8.0a3**: comandi `websmith-talks install` e
+Versione di sviluppo **0.8.0a4**: comandi `websmith-talks install` e
 `websmith-talks update`, un sito per installazione e tag email
 `[websmith:site.id]` compatibile con Websmith. Il comando è `websmith-talks`,
 le skill sono `story` e `page` e lo stato è in `.websmith-talks`.
 La consegna resta Gmail: il mittente è l’account Google collegato all’app.
-Le conversazioni sono utilizzabili per siti e organizzazioni diversi, senza
-un marchio o un destinatario email predefinito.
+Le conversazioni sono utilizzabili per siti e organizzazioni diversi. Le nuove
+installazioni consegnano a `trtalks@techreloaded.it`, salvo configurazione diversa.
+Ogni collega usa il proprio connettore Gmail collegato nell’app.
 
 ## Installazione e collegamento
 
@@ -125,8 +127,8 @@ le scelte ancora aperte. CTA e hero sono facoltative. La conversazione non
 pubblica la pagina e la consegna email si esegue solo se richiesta e autorizzata.
 
 `websmith-talks skills` elenca le conversazioni; `websmith-talks paths` mostra i percorsi.
-Le nuove installazioni non hanno un destinatario email predefinito. Le bozze
-locali si possono creare subito; per una consegna indicare la casella corretta:
+Le nuove installazioni usano `trtalks@techreloaded.it` come destinatario email.
+Per scegliere una casella diversa:
 
 ```bash
 websmith-talks configure --recipient redazione@example.org
@@ -134,10 +136,16 @@ websmith-talks configure --recipient redazione@example.org
 
 Restano disponibili `--name` (autore nel corpo email), `--email` (Reply-To),
 `--enable-send` e `--disable-send`. L’abilitazione non autorizza di per sé un invio:
-ogni consegna usa l’autorizzazione della persona per il documento e destinatario.
+Story comprende la consegna automatica a fine intervista, annunciata all’inizio;
+Page e le prove richiedono una richiesta di consegna. Le richieste di sola bozza
+e non invio prevalgono sempre.
 `status` indica se il destinatario è configurato. Se manca, `send` e `dry-run`
 si fermano senza creare tentativi; i destinatari già salvati sono conservati
-durante gli aggiornamenti. Nessun indirizzo viene dedotto dal nome del sito.
+durante gli aggiornamenti, anche se esplicitamente vuoti. Per una precedente
+installazione con destinatario vuoto usare una volta
+`websmith-talks configure --recipient trtalks@techreloaded.it`, oppure passare
+`--recipient trtalks@techreloaded.it` a `update`. Nessun indirizzo viene dedotto
+dal nome del sito.
 
 Le skill usano il sito associato senza richiederlo a ogni conversazione;
 raccolgono pubblico e scopo dalle indicazioni ricevute.
@@ -147,7 +155,10 @@ chiamata Stories o pannelli di sintesi obbligatori.
 ## Intervista e consegna
 
 L’assistente fa una domanda alla volta, raccoglie le risposte, prepara il file
-e lo mostra integralmente. Dopo l’autorizzazione alla consegna, esegue:
+e lo mostra integralmente. All’inizio di Story indica il destinatario e la
+consegna automatica tramite l’account Gmail del collega. Alla conclusione invia
+il file senza una seconda conferma, salvo richiesta di sola bozza o non invio.
+Rispetta anche l’invio disabilitato nella configurazione locale. L’agente esegue:
 
 1. `dry-run`: verifica formato, destinatario e SHA-256 senza rete.
 2. `send`: salva copia dei byte approvati e stato privato e restituisce gli
@@ -174,7 +185,12 @@ i tentativi dei trasporti precedenti, senza convertirli in nuove spedizioni.
 
 `status` controlla solo le preferenze locali. Per verificare il collegamento
 senza email, l’agente usa `get_profile` di Gmail. `probe` crea un Markdown
-fittizio locale. Nessun test tecnico autorizza una spedizione.
+fittizio locale. Una semplice verifica tecnica non spedisce email. Una richiesta
+esplicita come «crea e invia un’intervista di prova» richiede invece la consegna
+reale di un documento chiaramente fittizio, senza domande di intervista non richieste.
+Le istruzioni generate in `AGENTS.md` instradano anche queste richieste verso
+configurazione e regole comuni dell’installazione corrente, indipendentemente
+dal nome del sito e dalla modalità testuale o vocale.
 
 ## Aggiornamenti
 

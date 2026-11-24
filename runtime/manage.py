@@ -164,7 +164,8 @@ def launcher_bytes(root, legacy=False, trtalks=False):
             + repr(str(script)) + "] + sys.argv[1:])\n").encode("utf-8")
 
 
-def guide_bytes(in_application=False, with_site=True):
+def legacy_guide_bytes(in_application=False, with_site=True):
+    # Keep the exact previously distributed bytes to recognize managed guides.
     guide = ("# websmith-talks\n\n"
         "Le tipologie di conversazione installate sono dichiarate in `.websmith-talks/app/conversations.json`.\n"
         "Leggere il catalogo quando l'utente chiede una conversazione websmith-talks.\n"
@@ -185,9 +186,27 @@ def guide_bytes(in_application=False, with_site=True):
     return guide
 
 
+def guide_bytes(in_application=False, with_site=True):
+    guide = legacy_guide_bytes(in_application, with_site)
+    guide = guide.replace("Le richieste tecniche non avviano conversazioni né autorizzano invii.".encode("utf-8"),
+                          "Le sole verifiche tecniche non avviano interviste e non spediscono email.".encode("utf-8"))
+    guide += ("\n## Installazione corrente e richieste tecniche\n\n"
+        "Usare questa installazione locale di websmith-talks e la sua configurazione per tutte le richieste, anche vocali.\n"
+        "Il nome del sito non identifica un'altra applicazione o una cartella da cercare.\n"
+        "Per verifiche, prove email e consegne leggere prima `./websmith-talks status` e `./websmith-talks paths`.\n"
+        "Leggere `.websmith-talks/app/runtime/references/invio.md` e `.websmith-talks/app/runtime/references/backend.md`, anche senza avviare Story o Page.\n"
+        "Usare send_email del connettore Gmail disponibile nella sessione: il mittente è l'account collegato nell'app del collega.\n"
+        "Leggere il destinatario effettivo da status; nelle nuove installazioni è trtalks@techreloaded.it.\n"
+        "Story prevede la consegna automatica del Markdown alla fine dell'intervista, salvo richiesta di non inviare.\n"
+        "Annunciare destinatario e consegna all'inizio; alla conclusione mostrare il documento e completare l'invio senza una seconda conferma.\n"
+        "Una sola verifica tecnica o prova della skill non invia email; una richiesta esplicita di creare e inviare una prova segue invece il flusso di consegna.\n"
+        "Se manca un accesso o uno strumento, indicare l'operazione tentata e il limite effettivo; non dedurre che manchi la cartella e non rinviare automaticamente a un'altra chat.\n").encode("utf-8")
+    return guide
+
+
 def previous_guide_bytes(in_application=False):
     # The generated guide from TRTalks; custom project instructions stay intact.
-    return guide_bytes(in_application, with_site=False).replace(b"websmith-talks", b"trtalks").replace(b"# trtalks", b"# TRTalks").replace(
+    return legacy_guide_bytes(in_application, with_site=False).replace(b"websmith-talks", b"trtalks").replace(b"# trtalks", b"# TRTalks").replace(
         b"conversazione trtalks.", b"conversazione TRTalks.")
 
 
@@ -397,7 +416,9 @@ def install(root, raw, expected, release_url=None, update=False, dry_run=False, 
                 metadata.setdefault("release_url", DEFAULT_RELEASE_URL)
             plan.append((state / "install.json", staged_file(temporary, "metadata", canonical(metadata) + b"\n")))
             guide = plain_path(root / "AGENTS.md")
-            generated_guides = (guide_bytes(), guide_bytes(True), guide_bytes(False, False), guide_bytes(True, False),
+            generated_guides = (guide_bytes(), guide_bytes(True),
+                                legacy_guide_bytes(), legacy_guide_bytes(True),
+                                legacy_guide_bytes(False, False), legacy_guide_bytes(True, False),
                                 previous_guide_bytes(), previous_guide_bytes(True))
             if not guide.exists() or guide.read_bytes() in generated_guides:
                 plan.append((guide, staged_file(temporary, "guide", guide_bytes(skills_in_application), 0o644)))

@@ -60,6 +60,47 @@ class InstallTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.install()
 
+    def test_new_installation_prepares_gmail_for_default_recipient_and_own_site(self):
+        self.install()
+        launcher = [sys.executable, str(self.root / "websmith-talks")]
+        status = json.loads(subprocess.run(launcher + ["status"], capture_output=True,
+                                          text=True, check=True).stdout)
+        self.assertEqual(status["recipient"], "trtalks@techreloaded.it")
+        self.assertTrue(status["recipient_configured"])
+        self.assertEqual(status["email_tag"], "[websmith:example]")
+        self.assertFalse(status["gmail_connection_verified"])
+        draft = self.root / "story.md"
+        raw = b"# Synthetic interview\n\nFor an isolated test only.\n"
+        draft.write_bytes(raw)
+        prepared = json.loads(subprocess.run(launcher + ["send", str(draft),
+            "--approved-sha256", digest(raw), "--authorization", "Synthetic completed Story request"],
+            capture_output=True, text=True, check=True).stdout)
+        self.assertEqual(prepared["tool"], "mcp__codex_apps__gmail_send_email")
+        self.assertEqual(prepared["tool_arguments"]["to"], "trtalks@techreloaded.it")
+        self.assertEqual(prepared["tool_arguments"]["subject"], "[websmith:example] websmith-talks — story.md")
+        self.assertEqual(Path(prepared["tool_arguments"]["attachment_files"][0]).read_bytes(), raw)
+        self.assertFalse(prepared["email_sent"])
+        self.assertFalse(prepared["network_called"])
+
+    def test_update_replaces_previous_generated_guide_in_both_skill_modes(self):
+        self.install()
+        guide = self.root / "AGENTS.md"
+        for in_application in (False, True):
+            with self.subTest(in_application=in_application):
+                guide.write_bytes(manage.legacy_guide_bytes(in_application))
+                raw, sha = package("0.3.0a" + ("3" if in_application else "2"))
+                manage.install(self.root, raw, sha, update=True, skills_in_application=in_application)
+                self.assertEqual(guide.read_bytes(), manage.guide_bytes(in_application))
+
+    def test_update_preserves_explicitly_empty_recipient_and_disabled_send(self):
+        self.install()
+        config = self.root / ".websmith-talks/config.local.json"
+        atomic_json(config, dict(manage.DEFAULT_CONFIG, recipient="", send_enabled=False, site={"id": "example"}))
+        manage.install(self.root, self.new, self.new_sha, update=True)
+        current = json.loads(config.read_text())
+        self.assertEqual(current["recipient"], "")
+        self.assertFalse(current["send_enabled"])
+
     def test_update_preserves_configuration_credentials_drafts_state_and_local_rules(self):
         self.install()
         local = self.root / ".websmith-talks/config.local.json"

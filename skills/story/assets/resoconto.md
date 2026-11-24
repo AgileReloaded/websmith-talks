@@ -44,5 +44,5 @@ Eliminare queste istruzioni e sostituire i segnaposto con lo stato effettivo. --
 ## Autorizzazioni
 
 Pubblicazione dei singoli elementi: [stato effettivo]
-Consegna dell'intero documento alla redazione: [non richiesta / autorizzata: indicare versione e destinazione / negata]
+Consegna dell'intero documento alla redazione: [automatica a fine Story: indicare versione e destinazione / solo bozza su richiesta / prova senza invio / negata]
 Invio effettivo: non eseguito.

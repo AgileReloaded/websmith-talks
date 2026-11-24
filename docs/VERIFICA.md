@@ -19,6 +19,10 @@ errore di rete. L'uso locale richiede `--source` esplicito.
 Il test dei prompt usa un flusso di testo con buffer: prima di ogni lettura
 controlla che la domanda sia già visibile, anche senza un carattere di nuova riga.
 
+I test verificano anche il destinatario base delle nuove installazioni, la
+preparazione Gmail dal launcher installato con allegato integro e tag del sito,
+l’aggiornamento delle precedenti istruzioni generate in entrambe le modalità
+di skill, e il mantenimento di destinatario vuoto e invio disabilitato espliciti.
 I risultati Gmail nei test sono sintetici; nessuna email viene inviata.
 `websmith-talks status` legge solo la configurazione. Per una verifica reale senza email
 usare `get_profile` di Gmail nella chat. Una prova reale di consegna richiede

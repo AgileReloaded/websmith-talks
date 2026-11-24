@@ -13,17 +13,21 @@ dall'agente con la chiamata reale al tool Gmail, nello stesso flusso.
 ## Configurazione
 
 `.websmith-talks/config.local.json` contiene `schema:2`, `transport:"gmail"`,
-`recipient` (inizialmente vuoto), `sender_name`, `reply_to`
+`recipient` (inizialmente `trtalks@techreloaded.it`), `sender_name`, `reply_to`
 e `send_enabled` (inizialmente `true`), oltre a `site: {id, name, base_url}`.
-Ogni documento richiede comunque la
-propria autorizzazione alla consegna. Le preferenze esistenti restano valide.
-Non esiste una casella predefinita. Il setup associa esattamente un sito con
+Story comprende la consegna automatica del documento finale, annunciata
+all'inizio dell'intervista. Le richieste di sola bozza e non invio prevalgono;
+Page e le prove richiedono una richiesta di invio. Seguire [invio.md](invio.md)
+per registrare l'autorizzazione effettiva senza conferme ripetute.
+Le preferenze esistenti restano valide, anche un destinatario esplicitamente vuoto.
+Il setup associa esattamente un sito con
 lo stesso `site.id` di Websmith, verificato nei metadati dell'installazione.
 Nome e URL sono facoltativi; non generare un ID dal dominio.
 Per vecchie installazioni senza sito usare una sola volta
 `configure --site-id ID`. Per un altro sito usare un'installazione separata.
-Configurare il destinatario su
-indicazione della persona prima della consegna; `status` espone
+Per cambiare il destinatario usare `configure --recipient INDIRIZZO` su
+indicazione della persona. Per installazioni precedenti con destinatario vuoto,
+configurarlo una sola volta; `status` espone
 `recipient_configured:false` finché manca. `send` e `dry-run` si interrompono
 senza creare tentativi quando il destinatario non è configurato. Le conversazioni,
 il salvataggio locale e `probe` restano disponibili.
@@ -32,6 +36,8 @@ della consegna si interrompe. Se presente, espone anche `email_tag`.
 Il collegamento Google è gestito dall'app: nessun host, porta, password, token
 locale o procedura `init`. L'aggiornamento elimina i precedenti parametri di
 connessione, conservando destinatario, preferenze e ricevute.
+Ogni collega usa il connettore Gmail configurato nella propria app. Non cercare
+un account del sito o un collegamento ereditato da chi ha creato il pacchetto.
 
 `websmith-talks status` mostra le impostazioni locali senza rete e senza dichiarare
 verificato il collegamento Gmail. L'agente controlla la disponibilità di

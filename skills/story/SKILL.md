@@ -1,6 +1,6 @@
 ---
 name: story
-description: Raccogliere case histories ed esperienze di progetto per un sito web con una domanda alla volta e produrre un resoconto Markdown. Usare quando viene chiesta Story o un’intervista su un caso concreto; per altre conversazioni scegliere la relativa skill websmith-talks.
+description: Raccogliere case histories ed esperienze di progetto per il sito configurato, una domanda alla volta, e consegnare il resoconto Markdown via Gmail a fine intervista. Usare quando viene chiesta Story o un’intervista su un caso concreto; per altre conversazioni scegliere la relativa skill websmith-talks.
 ---
 
 # Story
@@ -10,11 +10,14 @@ sono fornite da Codex. Story è una delle skill di conversazione dell’applicaz
 websmith-talks; gli strumenti comuni gestiscono verifica, consegna e manutenzione.
 Consegnare il Markdown allegato tramite `send_email` del connettore Gmail disponibile
 alla chat. Il mittente è l’account Google collegato; seguire le istruzioni condivise
-di consegna. Non usare credenziali o server di posta locali.
+di consegna. Il flusso Story comprende l'invio automatico a fine intervista al
+destinatario della configurazione, inizialmente `trtalks@techreloaded.it`.
+Rispettare le richieste di sola bozza o di non inviare. Non usare credenziali o
+server di posta locali.
 
 ## Prova breve
 
-Se viene chiesta una prova della skill, spiegare in una frase che si userà un
+Se viene chiesta una prova della skill senza invio, spiegare in una frase che si userà un
 caso fittizio e non partiranno email. Chiedere soltanto: «Quale problema affronta
 il progetto fittizio?» e attendere la risposta. Dopo la risposta chiedere quale
 intervento è stato fatto; poi quale risultato è stato osservato. Non inventare
@@ -30,6 +33,9 @@ Se viene chiesta anche una verifica tecnica, eseguire con percorso assoluto
 `websmith-talks status` mostra la configurazione Gmail senza rete. Per una verifica
 della connessione usare `get_profile` di Gmail, se disponibile, senza inviare email.
 Riportare soltanto gli esiti reali. Una prova della skill non autorizza spedizioni.
+Se la persona chiede esplicitamente di creare e inviare una prova, seguire invece
+il flusso comune di consegna: creare un documento chiaramente fittizio e usare
+l'autorizzazione già ricevuta, senza avviare un'intervista non richiesta.
 
 ## Raccolta dell'intervista
 
@@ -54,9 +60,12 @@ nell'articolo finale. Non assumere che il caso riguardi l'AI, un cliente esterno
 o una sezione chiamata Stories. I pannelli sono facoltativi: raccoglierli solo
 se previsti dal sito o richiesti dalla persona.
 
-All'inizio spiegare brevemente lo scopo della raccolta e che il resoconto può includere
-materiale riservato alla redazione. Fare domande sui permessi di pubblicazione
-durante il riepilogo; non confonderli con l'autorizzazione all'invio del file.
+All'inizio spiegare brevemente lo scopo della raccolta e indicare che il resoconto
+sarà inviato automaticamente al destinatario effettivo tramite il Gmail collegato
+all'app, salvo richiesta di non inviare. Il resoconto può includere materiale
+riservato alla redazione. Verificare la disponibilità del connettore nella sessione;
+se manca, dichiararlo e proseguire con la bozza locale. Fare domande sui permessi
+di pubblicazione durante il riepilogo; sono distinti dalla consegna alla redazione.
 
 - Fare una domanda breve per turno e attendere. Separare le formulazioni composte.
 - Fare al massimo un approfondimento su ciascuna lacuna. Accettare omissioni,
@@ -65,9 +74,10 @@ durante il riepilogo; non confonderli con l'autorizzazione all'invio del file.
   Non ricavare citazioni dalle proprie sintesi né risultati dalle proprie ipotesi.
 - Mostrare il file completo dopo la revisione. I dettagli riservati devono essere
   identificati; i permessi di pubblicazione restano distinti dalla consegna.
-- Se la persona autorizza già l'invio della versione finale alla redazione,
-  registrarlo senza richiederlo una seconda volta. L'autorizzazione vale per il
-  contenuto e la destinazione indicati e non elimina i controlli dell'ambiente.
+- Alla conclusione dell'intervista consegnare la versione finale secondo il
+  flusso automatico annunciato, senza chiedere una seconda conferma. Non anticipare
+  la consegna mentre la persona sta rispondendo o correggendo. Una richiesta di
+  sola bozza, sospensione o non invio prevale; non spedire in questi casi.
 
 ## Consegna e aggiornamenti
 
@@ -75,16 +85,21 @@ Prima della consegna leggere `runtime/references/invio.md` dell’applicazione
 websmith-talks: nel progetto installato si trova sotto `.websmith-talks/app/`; nel sorgente
 sotto la radice del progetto. Il comando `websmith-talks paths` mostra i percorsi effettivi.
 Applicare anche gli eventuali corrispondenti file condivisi `*.local.md`. Mostrare
-il documento integrale, rendere disponibile il file e ottenere l'autorizzazione
-alla consegna di quella versione al destinatario effettivo della configurazione, inclusi i dettagli
-riservati contrassegnati. Se l'autorizzazione è già stata data per la versione
-finale e la destinazione indicate, usarla senza ripetere la domanda.
+il documento integrale, rendere disponibile il file e completare la consegna al
+destinatario annunciato. Registrare in `--authorization` la richiesta effettiva
+di svolgere Story con consegna automatica e la conclusione dell'intervista,
+oppure l'istruzione esplicita di invio già ricevuta. Non inventare un'approvazione
+manuale. Per un destinatario diverso da quello annunciato serve una richiesta
+della persona. L'installazione da sola non avvia alcun invio.
 
 Eseguire la preparazione locale, chiamare direttamente `send_email` di Gmail con
 l’allegato e il tag `[websmith:site.id]` nell'oggetto preparato dal runtime.
 Non cambiare il tag o inviare il documento a un altro sito. Registrare la risposta reale: non fermarsi alla preparazione e non
-chiedere alla persona comandi manuali di invio. Non considerare l'installazione un'autorizzazione a spedire documenti.
-Non attivare l'invio o mandare email durante una verifica tecnica. Per gli
+chiedere alla persona comandi manuali di invio. Se `send_enabled:false`, conservare
+la bozza e segnalare l'impostazione; una richiesta esplicita di inviare quel file
+o di abilitare l'invio consente di riabilitarlo. La sola conclusione di Story
+non basta a riabilitare l'invio automatico.
+Non mandare email durante una semplice verifica tecnica. Per gli
 aggiornamenti richiesti usare il launcher `websmith-talks update` nel progetto;
 `websmith-talks uninstall` disattiva la skill conservando dati e impostazioni.
 
@@ -94,7 +109,8 @@ La conversazione funziona anche in testo. Usare la voce solo se l'app in uso la
 offre; non confondere dettatura con conversazione vocale bidirezionale e non
 dichiarare una prova vocale riuscita senza lo scambio reale.
 
-Per una richiesta esclusivamente tecnica non avviare l'intervista. Leggere
+Per una richiesta esclusivamente tecnica non avviare l'intervista. Se comprende
+un invio esplicito, seguire `runtime/references/invio.md`; per le sole verifiche leggere
 `runtime/references/backend.md` dell'applicazione e usare `websmith-talks probe` per una
 prova locale senza rete o `websmith-talks status` per vedere le impostazioni Gmail.
 Non chiedere password: il collegamento Google è gestito dall’app. Verificare

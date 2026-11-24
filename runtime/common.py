@@ -13,7 +13,7 @@ import urllib.parse
 DEFAULT_CONFIG = {
     "schema": 2,
     "transport": "gmail",
-    "recipient": "",
+    "recipient": "trtalks@techreloaded.it",
     "sender_name": "websmith-talks",
     "reply_to": "",
     "send_enabled": True,
