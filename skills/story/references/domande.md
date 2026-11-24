@@ -1,7 +1,7 @@
 # Traccia delle domande
 
 Fonte: TRInterview.zip, skills/instructions/SKILL.md, letto il 23 novembre 2026.
-La traccia è riportata dalla fonte. Applicare sempre la regola websmith-talks di una
+La traccia è adattata a siti e progetti diversi. Applicare sempre la regola websmith-talks di una
 sola domanda per turno, dividendo le formulazioni composte e rispettando salti,
 correzioni, conclusione anticipata e numero di pannelli scelto dalla persona.
 
@@ -13,13 +13,15 @@ Gli approfondimenti sono facoltativi. Usali quando l'informazione manca o resta 
 
 **1. Contesto**
 
-Parlaci di un caso a cui hai lavorato e che pubblicheremo nella sezione Stories. Chi era il cliente e che cosa vi ha chiesto?
+Parlaci di un caso a cui hai lavorato e che vuoi raccontare per il sito di destinazione.
 
+- *Se manca:* per chi è stato realizzato il progetto: un cliente, utenti o persone dell'organizzazione?
+- *Se manca:* quale richiesta o bisogno ha dato origine al progetto?
 - *Se manca:* qual era il tuo ruolo e chi altro lavorava al progetto?
 
 **2. Problema**
 
-Quale problema doveva affrontare il cliente? Che cosa succedeva in una normale settimana di lavoro?
+Quale problema dovevano affrontare le persone a cui il progetto si rivolge? Che cosa succedeva in una normale settimana di lavoro?
 
 - *Se resta generico:* mi racconti un episodio in cui il problema si è visto?
 - *Se mancano i numeri:* quante persone erano coinvolte e quanto tempo richiedeva?
@@ -28,7 +30,7 @@ Quale problema doveva affrontare il cliente? Che cosa succedeva in una normale s
 
 Come avete affrontato il lavoro? Qual è stata la prima cosa che avete fatto?
 
-- *Se manca:* in quale passaggio è entrata l'AI e per fare che cosa?
+- *Solo se emerge un uso dell'AI:* in quale passaggio è entrata e per fare che cosa?
 - *Se resta generico:* che cosa è stato consegnato, in quale ordine e in quanto tempo?
 
 **4. Scelte e intoppi**
@@ -46,7 +48,7 @@ Come avete verificato gli output e chi ha assunto la responsabilità delle decis
 
 **6. Risultato**
 
-Che cosa ha oggi il cliente che prima non aveva?
+Che cosa hanno oggi i destinatari del progetto che prima non avevano?
 
 - *Se manca:* è in uso? Da chi e per che cosa?
 - *Se manca un dato:* c'è un numero che misura il cambiamento? Chi lo ha misurato?
@@ -64,9 +66,12 @@ Quale questione resta ancora aperta?
 
 - *Se utile:* che cosa faresti diversamente la prossima volta?
 
-**9. Punti essenziali per i pannelli**
+**9. Punti essenziali per i pannelli — facoltativi**
 
-L'articolo potrà essere accompagnato da quattro o cinque pannelli (slide o immagini), uno per ciascun punto essenziale del racconto. Spiegalo all'intervistato in una frase, poi chiedi:
+Se il sito non li prevede e la persona non li ha richiesti, chiedere se desidera
+anche pannelli di sintesi. Se no, saltare questo tema. Se sì, proporre quattro
+o cinque pannelli (slide o immagini), adattando il numero alle sue indicazioni.
+Spiegarlo all'intervistato in una frase, poi chiedere:
 
 Ripensando a tutto il racconto, quali sono i quattro o cinque punti che un lettore deve assolutamente portarsi via?
 

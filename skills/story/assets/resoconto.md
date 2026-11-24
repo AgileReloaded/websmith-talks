@@ -3,11 +3,13 @@
 Stato: bozza [indicare esplicitamente se prova fittizia]
 Data dell'intervista: [data effettiva]
 Intervistato: [nome e ruolo oppure non dichiarato]
-Sito di destinazione: TechReloaded Stories
+Sito di destinazione: [nome e riferimento indicati / non ancora deciso / non dichiarato]
+Sezione prevista: [indicata / da decidere / non dichiarata]
 Cliente nominabile: [sì / no / da confermare]
 Firma dell'articolo: [autorizzata / generica / da confermare]
 
-<!-- Usare solo le sezioni con risposte raccolte. Eliminare queste istruzioni. -->
+<!-- Usare solo le sezioni con risposte raccolte. I pannelli sono facoltativi.
+Eliminare queste istruzioni e sostituire i segnaposto con lo stato effettivo. -->
 
 ## 1. Contesto
 ## 2. Problema

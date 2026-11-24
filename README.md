@@ -11,6 +11,8 @@ connettore Gmail** collegato alla chat.
 Versione di sviluppo **0.6.0a1**: rinomina da TRTalks, comando `websmith-talks`,
 skill `story` e `page` e stato in `.websmith-talks`. La consegna resta Gmail:
 il mittente è l’account Google collegato all’app.
+Le conversazioni sono utilizzabili per siti e organizzazioni diversi, senza
+un marchio o un destinatario email predefinito.
 
 ## Installazione e collegamento
 
@@ -29,7 +31,7 @@ curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloa
 
 Aprire la cartella websmith-talks nell’app e scrivere:
 
-> Usa $story per raccogliere un caso TechReloaded.
+> Usa $story per raccogliere un caso di progetto per il nostro sito.
 
 Per preparare una pagina web:
 
@@ -44,15 +46,24 @@ le scelte ancora aperte. CTA e hero sono facoltative. La conversazione non
 pubblica la pagina e la consegna email si esegue solo se richiesta e autorizzata.
 
 `websmith-talks skills` elenca le conversazioni; `websmith-talks paths` mostra i percorsi.
-Il destinatario iniziale è `trtalks@techreloaded.it`. Si può cambiare con:
+Le nuove installazioni non hanno un destinatario email predefinito. Le bozze
+locali si possono creare subito; per una consegna indicare la casella corretta:
 
 ```bash
-~/websmith-talks/websmith-talks configure --recipient info@techreloaded.it
+~/websmith-talks/websmith-talks configure --recipient redazione@example.org
 ```
 
 Restano disponibili `--name` (autore nel corpo email), `--email` (Reply-To),
 `--enable-send` e `--disable-send`. L’abilitazione non autorizza di per sé un invio:
 ogni consegna usa l’autorizzazione della persona per il documento e destinatario.
+`status` indica se il destinatario è configurato. Se manca, `send` e `dry-run`
+si fermano senza creare tentativi; i destinatari già salvati sono conservati
+durante gli aggiornamenti. Nessun indirizzo viene dedotto dal nome del sito.
+
+Le skill ricavano sito, pubblico e scopo dalle istruzioni del progetto o dalle
+risposte. Il sito può essere ancora da decidere, senza impedire il salvataggio
+di una bozza. Story non presume l'uso dell'AI, un cliente esterno, una sezione
+chiamata Stories o pannelli di sintesi obbligatori.
 
 ## Intervista e consegna
 
@@ -122,8 +133,10 @@ Il vecchio comando `trtalks update` non comprende il nuovo formato: il primo
 passaggio richiede il bootstrap nuovo oppure `runtime/manage.py install --upgrade`
 con il nuovo archivio e il relativo checksum.
 
-La configurazione per un solo sito e l’indipendenza da TechReloaded sono passi
-successivi: destinatario e contenuto delle conversazioni restano quelli attuali.
+La configurazione di un solo sito all'installazione, con `site.id` condiviso con
+Websmith e tag email `[websmith:site.id]`, è il passo successivo. In questa fase
+il sito è ricavato dalle indicazioni del progetto e non viene creato un nuovo
+schema di configurazione per il sito.
 
 ## Sviluppo
 

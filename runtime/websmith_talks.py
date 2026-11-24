@@ -81,6 +81,7 @@ def main(argv=None):
             config = validate_config(config)
             atomic_json(path, config)
         print(json.dumps({"configured": True, "send_enabled": config["send_enabled"],
+                          "recipient_configured": bool(config["recipient"]),
                           "transport": "gmail", "recipient": config["recipient"],
                           "config_file": str(path), "network_called": False}, ensure_ascii=False))
         return 0

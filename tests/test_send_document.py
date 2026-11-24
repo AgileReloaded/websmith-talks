@@ -16,7 +16,8 @@ class GmailDeliveryTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve()
         self.config = self.root / '.websmith-talks/config.local.json'
-        atomic_json(self.config, DEFAULT_CONFIG)
+        self.recipient = 'editor@example.test'
+        atomic_json(self.config, dict(DEFAULT_CONFIG, recipient=self.recipient))
         self.draft = self.root / 'story.md'
         self.raw = '# Resoconto\r\n\r\nCittà, attività e risultati.\r\n'.encode('utf-8')
         self.draft.write_bytes(self.raw)
@@ -43,7 +44,7 @@ class GmailDeliveryTests(unittest.TestCase):
         self.assertEqual(Path(args['attachment_files'][0]).read_bytes(), self.raw)
         self.draft.write_text('Later edits')
         self.assertEqual(Path(args['attachment_files'][0]).read_bytes(), self.raw)
-        self.assertEqual(args['to'], DEFAULT_CONFIG['recipient'])
+        self.assertEqual(args['to'], self.recipient)
 
     def test_missing_authorization_changed_bytes_disabled_send(self):
         for sha, auth in (('0' * 64, 'yes'), (self.sha, ''), (self.sha, ' ')):
@@ -53,6 +54,18 @@ class GmailDeliveryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.prepare()
         self.assertFalse((self.root / '.websmith-talks/deliveries').exists())
+
+    def test_missing_recipient_blocks_preparation_without_creating_delivery_state(self):
+        atomic_json(self.config, DEFAULT_CONFIG)
+        status = delivery.status(self.root)
+        self.assertFalse(status['recipient_configured'])
+        self.assertEqual(status['recipient'], '')
+        self.assertIn('configure --recipient', status['next_action'])
+        for operation in (self.prepare, lambda: delivery.dry_run(self.root, self.draft)):
+            with self.assertRaisesRegex(ValueError, 'Destinatario non configurato'):
+                operation()
+        self.assertFalse((self.root / '.websmith-talks/deliveries').exists())
+        self.assertTrue(Path(delivery.probe(self.root)['draft_path']).is_file())
 
     def test_pending_and_uncertain_block_duplicate_and_retry(self):
         result = self.prepare()

@@ -6,6 +6,11 @@ pagine web e si invoca con `$page`. La versione di sviluppo è 0.6.0a1.
 Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
 I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
+Le conversazioni non assumono un marchio o un sito. Leggono le istruzioni del
+progetto e raccolgono dalla persona le indicazioni mancanti; il sito può essere
+ancora da decidere. Le regole del sito per l'articolo finale non cambiano la
+fedeltà alle risposte dell'intervistato. AI e pannelli di sintesi sono facoltativi.
+
 ## Organizzazione dei sorgenti
 
 | Percorso | Contenuto |
@@ -106,6 +111,11 @@ launcher, skill, configurazione e istruzioni precedenti.
 Il runtime 0.6.0a1 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
 nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
+Le nuove installazioni hanno il destinatario vuoto: la consegna richiede
+`configure --recipient INDIRIZZO`, su indicazione della persona. Gli aggiornamenti
+conservano gli indirizzi esistenti, compresi quelli delle installazioni TRTalks.
+L'associazione a un solo sito e il tag email condiviso con Websmith sono previsti
+nel passo successivo e non vengono ancora applicati.
 `status` mostra le preferenze senza rete; `get_profile` di Gmail verifica
 l’account; `probe` crea solo una bozza locale.
 

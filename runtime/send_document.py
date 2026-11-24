@@ -19,12 +19,17 @@ def status(root):
     config = load_config(root)
     return {"operation": "gmail-status", "transport": "gmail", "network_called": False,
             "recipient": config["recipient"], "send_enabled": config["send_enabled"],
+            "recipient_configured": bool(config["recipient"]),
             "gmail_connection_verified": False, "email_delivery": "not_requested",
             "required_tool": GMAIL_TOOL,
-            "next_action": "L'agente verifica il tool Gmail; get_profile verifica l'account senza inviare email."}
+            "next_action": ("L'agente verifica il tool Gmail; get_profile verifica l'account senza inviare email."
+                            if config["recipient"] else
+                            "Indicare il destinatario della consegna con websmith-talks configure --recipient INDIRIZZO; nessun invio disponibile finché manca.")}
 
 
 def validated_document(file, config, name=None, email=None):
+    if not email_address(config["recipient"]):
+        raise ValueError("Destinatario non configurato: usare websmith-talks configure --recipient INDIRIZZO prima della consegna")
     file = plain_path(Path(file).absolute())
     if not file.is_file():
         raise ValueError("La bozza deve essere un file regolare")

@@ -88,7 +88,7 @@ def publish(repo, dry_run=False):
     branch = command(["git", "symbolic-ref", "--short", "HEAD"]).stdout.strip()
     if missing:
         command(["gh", "repo", "create", repo, "--public", "--description",
-                 "websmith-talks: skill locali Codex per conversazioni TechReloaded"])
+                 "websmith-talks: skill locali Codex per conversazioni e contenuti web"])
     # Credentials are supplied by gh for this invocation, without changing global Git settings.
     git_push = ["git", "-c", "credential.helper=", "-c", "credential.https://github.com.helper=!gh auth git-credential", "push"]
     command([*git_push, "-u", "origin", "HEAD:refs/heads/" + branch])

@@ -13,9 +13,14 @@ dall'agente con la chiamata reale al tool Gmail, nello stesso flusso.
 ## Configurazione
 
 `.websmith-talks/config.local.json` contiene `schema:2`, `transport:"gmail"`,
-`recipient` (inizialmente `trtalks@techreloaded.it`), `sender_name`, `reply_to`
+`recipient` (inizialmente vuoto), `sender_name`, `reply_to`
 e `send_enabled` (inizialmente `true`). Ogni documento richiede comunque la
 propria autorizzazione alla consegna. Le preferenze esistenti restano valide.
+Non esiste una casella o un sito predefinito. Configurare il destinatario su
+indicazione della persona prima della consegna; `status` espone
+`recipient_configured:false` finché manca. `send` e `dry-run` si interrompono
+senza creare tentativi quando il destinatario non è configurato. Le conversazioni,
+il salvataggio locale e `probe` restano disponibili.
 Il collegamento Google è gestito dall'app: nessun host, porta, password, token
 locale o procedura `init`. L'aggiornamento elimina i precedenti parametri di
 connessione, conservando destinatario, preferenze e ricevute.
@@ -30,7 +35,7 @@ verificato il collegamento Gmail. L'agente controlla la disponibilità di
 `send` salva una copia privata dei byte approvati e un tentativo `pending`,
 quindi restituisce `tool` e `tool_arguments` per l'agente. Non spedisce email.
 Il tool Gmail riceve `to`, `subject`, `payload` e `attachment_files`, oltre a
-`reply_to` se presente. Non impostare un indirizzo mittente SiteGround.
+`reply_to` se presente. Non sostituire il mittente dell'account autenticato.
 
 L'allegato deve essere accessibile al connettore. Se il percorso sul computer
 non è accessibile al tool, trasferire la copia approvata attraverso il canale

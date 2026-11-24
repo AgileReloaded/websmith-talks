@@ -2,11 +2,15 @@
 
 Adattate dal protocollo effettivamente presente in TRInterview.zip, skill
 `instructions`, letto il 23 novembre 2026. Il resoconto è materiale per la
-redazione, non un articolo già pronto. Il profilo impersonale dell'articolo
-TechReloaded non si applica alle risposte dell'intervistato.
+redazione, non un articolo già pronto. Le scelte di stile del sito per l'articolo
+finale non si applicano automaticamente alle risposte dell'intervistato.
 
 - Conservare la prima persona, il lessico e i dettagli delle risposte. Togliere
   esitazioni e ripetizioni senza cancellare fatti, episodi, opinioni o dubbi.
+- Registrare il sito e la sezione dalle indicazioni effettive. Se mancano,
+  scrivere «non dichiarato» o «da decidere», senza scegliere un marchio predefinito.
+- Adattare il racconto a progetti con clienti esterni, utenti o destinatari interni.
+  Non aggiungere l'AI se non emerge e omettere i pannelli quando non sono previsti.
 - Conservare numeri e precisione originali, distinguendo misura, stima e ricordo
   e annotando la fonte. Non convertire benefici dichiarati in risultati misurati.
 - Riportare fra virgolette solo parole effettivamente dette e attribuite.

@@ -28,8 +28,15 @@ class ConfigTests(unittest.TestCase):
         current = load_config(self.root)
         self.assertEqual(current['transport'], 'gmail')
         self.assertTrue(current['send_enabled'])
+        self.assertEqual(current['recipient'], '')
         self.assertFalse(any(k.startswith('smtp_') for k in current))
         self.assertEqual(self.path.stat().st_mode & 0o777, 0o600)
+
+    def test_recipient_can_be_configured_and_cleared_without_assuming_a_site(self):
+        self.assertEqual(self.configure('--recipient', 'editor@example.test'), 0)
+        self.assertEqual(load_config(self.root)['recipient'], 'editor@example.test')
+        self.assertEqual(self.configure('--recipient', ''), 0)
+        self.assertEqual(load_config(self.root)['recipient'], '')
 
     def test_migrate_without_losing_destination_preferences_or_custom_settings(self):
         atomic_json(self.path, {'schema': 1, 'transport': 'smtp', 'smtp_password': 'synthetic-secret',

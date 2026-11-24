@@ -12,9 +12,12 @@ Se manca, dichiarare il blocco e conservare il file. Non chiedere credenziali.
 reale senza email usare `get_profile` di Gmail, se disponibile. Non inviare
 messaggi durante una verifica tecnica.
 
-Il destinatario iniziale è `trtalks@techreloaded.it`; rispettare quello effettivo
-della configurazione. Cambiarlo solo su richiesta con
-`websmith-talks configure --recipient INDIRIZZO`. Il mittente è l'account Google
+Non esiste un destinatario iniziale: leggere quello effettivo della configurazione.
+Se manca, chiedere a quale indirizzo consegnare il documento, salvo indicazione
+già ricevuta. Configurarlo con `websmith-talks configure --recipient INDIRIZZO`
+ed esplicitarlo prima di usare l'autorizzazione. Non ricavare l'indirizzo dal
+nome del sito né scegliere una casella predefinita. Un destinatario esistente
+si cambia solo su richiesta. Il mittente è l'account Google
 collegato. Non servono `init` o variabili di connessione.
 
 ## Documento e consegna

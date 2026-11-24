@@ -1,6 +1,6 @@
 ---
 name: story
-description: Raccogliere case histories ed esperienze di progetto per le Stories TechReloaded con una domanda alla volta e produrre un resoconto Markdown. Usare quando viene chiesta Story o un’intervista su un caso concreto; per altre conversazioni scegliere la relativa skill websmith-talks.
+description: Raccogliere case histories ed esperienze di progetto per un sito web con una domanda alla volta e produrre un resoconto Markdown. Usare quando viene chiesta Story o un’intervista su un caso concreto; per altre conversazioni scegliere la relativa skill websmith-talks.
 ---
 
 # Story
@@ -40,7 +40,17 @@ Leggere anche gli eventuali corrispondenti `*.local.md` accanto alle basi e in
 `.websmith-talks/overrides/story/` del progetto: integrano le regole e prevalgono sulle scelte
 che modificano. Gli aggiornamenti conservano questi file.
 
-All'inizio spiegare brevemente lo scopo Stories e che il resoconto può includere
+Ricavare sito, pubblico e scopo dalle istruzioni del progetto o dalle indicazioni
+della persona. Se il sito manca, chiederlo una sola volta prima di adattare
+l'intervista; accettare «non ancora deciso» e registrarlo senza inventare nomi,
+domini o sezioni. Consultare le regole editoriali e di tono del sito, se
+disponibili, senza presumere che i suoi sorgenti siano in questo progetto.
+Le risposte restano fedeli alla persona anche se il sito userà un diverso stile
+nell'articolo finale. Non assumere che il caso riguardi l'AI, un cliente esterno
+o una sezione chiamata Stories. I pannelli sono facoltativi: raccoglierli solo
+se previsti dal sito o richiesti dalla persona.
+
+All'inizio spiegare brevemente lo scopo della raccolta e che il resoconto può includere
 materiale riservato alla redazione. Fare domande sui permessi di pubblicazione
 durante il riepilogo; non confonderli con l'autorizzazione all'invio del file.
 

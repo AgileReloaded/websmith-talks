@@ -5,7 +5,7 @@
     {
       "id": "story",
       "display_name": "Story",
-      "description": "Raccoglie case histories e prepara resoconti per le Stories TechReloaded.",
+      "description": "Raccoglie case histories ed esperienze di progetto e prepara resoconti per il sito di destinazione.",
       "files": [
         "SKILL.md",
         "agents/openai.yaml",

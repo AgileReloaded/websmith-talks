@@ -1,4 +1,4 @@
 interface:
   display_name: "Story"
-  short_description: "Raccoglie case histories per le Stories TechReloaded"
-  default_prompt: "Usa $story per raccogliere un caso TechReloaded, una domanda alla volta."
+  short_description: "Raccoglie case histories per il sito di destinazione"
+  default_prompt: "Usa $story per raccogliere un caso di progetto per il sito di destinazione, una domanda alla volta."

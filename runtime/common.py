@@ -13,7 +13,7 @@ import urllib.parse
 DEFAULT_CONFIG = {
     "schema": 2,
     "transport": "gmail",
-    "recipient": "trtalks@techreloaded.it",
+    "recipient": "",
     "sender_name": "websmith-talks",
     "reply_to": "",
     "send_enabled": True,
@@ -103,7 +103,7 @@ def validate_config(value):
         raise ValueError("Trasporto supportato: gmail")
     result = dict(DEFAULT_CONFIG, **result)
     result.update(schema=2, transport="gmail")
-    if not email_address(result["recipient"]):
+    if result["recipient"] != "" and not email_address(result["recipient"]):
         raise ValueError("Destinatario non valido")
     for field in ("sender_name", "reply_to"):
         if not isinstance(result[field], str):

@@ -24,6 +24,9 @@ il catalogo dei template e la struttura del sito. Rispettare gli override locali
 Usare queste fonti per evitare richieste già soddisfatte; non supporre che il
 progetto websmith-talks contenga anche i sorgenti del sito. Se mancano, raccogliere le
 indicazioni dalla persona e distinguere scelte, proposte e dati da verificare.
+Non assumere un marchio o un sito predefinito. Ricavare la destinazione dalle
+istruzioni del progetto o dalle risposte; se manca, chiederla una sola volta.
+Accettare un sito non ancora deciso, segnalandolo nelle informazioni mancanti.
 
 ## Conversazione
 
