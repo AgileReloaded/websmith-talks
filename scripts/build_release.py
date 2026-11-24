@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build an allowlisted, deterministic TRTalks release without private files."""
+"""Build an allowlisted, deterministic websmith-talks release without private files."""
 import argparse
 import hashlib
 import html
@@ -28,13 +28,13 @@ def package(version, source=None):
         if path.is_symlink():
             raise ValueError("Link nella distribuzione: " + name)
         files[name] = path.read_bytes()
-    manifest = {"schema": 2, "name": "trtalks", "version": version, "catalog": catalog,
+    manifest = {"schema": 2, "name": "websmith-talks", "version": version, "catalog": catalog,
                 "files": {name: hashlib.sha256(raw).hexdigest() for name, raw in files.items()}}
     files["release-manifest.json"] = canonical(manifest) + b"\n"
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name, raw in sorted(files.items()):
-            info = zipfile.ZipInfo("trtalks/" + name, date_time=(2026, 1, 1, 0, 0, 0))
+            info = zipfile.ZipInfo("websmith-talks/" + name, date_time=(2026, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o100644 << 16
             archive.writestr(info, raw)
@@ -49,9 +49,9 @@ def build(output, release_url=None):
     raw, checksum = package(version)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    (output / "trtalks.zip").write_bytes(raw)
-    (output / "SHA256SUMS").write_text(checksum + "  trtalks.zip\n", encoding="ascii")
-    (output / "release.json").write_bytes(canonical({"version": version, "asset": "trtalks.zip", "sha256": checksum}) + b"\n")
+    (output / "websmith-talks.zip").write_bytes(raw)
+    (output / "SHA256SUMS").write_text(checksum + "  websmith-talks.zip\n", encoding="ascii")
+    (output / "release.json").write_bytes(canonical({"version": version, "asset": "websmith-talks.zip", "sha256": checksum}) + b"\n")
     setup = (ROOT / "setup.sh").read_text(encoding="utf-8")
     if release_url:
         setup = setup.replace('default_release_url=""', "default_release_url=" + shlex.quote(https_url(release_url.rstrip("/"))))
@@ -61,13 +61,13 @@ def build(output, release_url=None):
         "<li><strong>" + html.escape(entry["display_name"]) + "</strong> — "
         + html.escape(entry["description"]) + "<br><code>Usa $" + entry["id"] + "</code></li>"
         for entry in load_catalog(ROOT)["skills"]) + "</ul>"
-    page = re.sub(r"<!-- trtalks:skills -->.*?<!-- /trtalks:skills -->",
-                  lambda _: "<!-- trtalks:skills -->" + skills_html + "<!-- /trtalks:skills -->", page, flags=re.S)
+    page = re.sub(r"<!-- websmith-talks:skills -->.*?<!-- /websmith-talks:skills -->",
+                  lambda _: "<!-- websmith-talks:skills -->" + skills_html + "<!-- /websmith-talks:skills -->", page, flags=re.S)
     if release_url:
-        page = page.replace('name="trtalks-release-url" content=""',
-                            'name="trtalks-release-url" content="' + html.escape(release_url.rstrip("/"), quote=True) + '"')
+        page = page.replace('name="websmith-talks-release-url" content=""',
+                            'name="websmith-talks-release-url" content="' + html.escape(release_url.rstrip("/"), quote=True) + '"')
     (output / "index.html").write_text(page, encoding="utf-8")
-    return {"version": version, "archive": str((output / "trtalks.zip").resolve()),
+    return {"version": version, "archive": str((output / "websmith-talks.zip").resolve()),
             "sha256": checksum, "published": False, "default_release_url": release_url}
 
 

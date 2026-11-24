@@ -9,7 +9,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'runtime'))
 from common import DEFAULT_CONFIG, atomic_json, load_config
-import trtalks
+import websmith_talks
 
 
 class ConfigTests(unittest.TestCase):
@@ -17,11 +17,11 @@ class ConfigTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve()
-        self.path = self.root / '.trtalks/config.local.json'
+        self.path = self.root / '.websmith-talks/config.local.json'
 
     def configure(self, *args):
         with redirect_stdout(io.StringIO()):
-            return trtalks.main(['--root', str(self.root), 'configure', *args])
+            return websmith_talks.main(['--root', str(self.root), 'configure', *args])
 
     def test_defaults_need_no_connection_credentials(self):
         self.assertEqual(self.configure(), 0)
@@ -57,6 +57,6 @@ class ConfigTests(unittest.TestCase):
     def test_init_and_connection_flags_removed(self):
         for args in (['init'], ['configure', '--smtp-host', 'old.test'], ['configure', '--smtp-password']):
             with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
-                trtalks.main(['--root', str(self.root), *args])
+                websmith_talks.main(['--root', str(self.root), *args])
             self.assertEqual(error.exception.code, 2)
         self.assertFalse(self.path.exists())

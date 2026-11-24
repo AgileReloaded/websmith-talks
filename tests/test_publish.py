@@ -18,7 +18,7 @@ class PublishTests(unittest.TestCase):
 
     def test_dry_run_never_uses_git_or_github(self):
         with mock.patch("publish.build", return_value={"version": "0.3.0a1"}), mock.patch("publish.command") as command:
-            result = publish.publish("AgileReloaded/TRTalks", dry_run=True)
+            result = publish.publish("AgileReloaded/websmith-talks", dry_run=True)
             self.assertFalse(result["published"])
             self.assertIn("releases/latest/download/setup.sh", result["install_command_after_publication"])
             command.assert_not_called()
@@ -30,7 +30,7 @@ class PublishTests(unittest.TestCase):
             return subprocess.CompletedProcess(args, 1, "", "Synthetic network failure")
         with mock.patch("publish.build", return_value={"version": "0.3.0a1"}), mock.patch("publish.command", side_effect=command) as observed:
             with self.assertRaisesRegex(RuntimeError, "Synthetic network failure"):
-                publish.publish("AgileReloaded/TRTalks")
+                publish.publish("AgileReloaded/websmith-talks")
             self.assertEqual(len(observed.call_args_list), 2)
             self.assertTrue(all(call.args[0][0] == "gh" for call in observed.call_args_list))
 

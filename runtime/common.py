@@ -1,4 +1,4 @@
-"""Shared standard-library helpers for the macOS/Linux TRTalks runtime."""
+"""Shared standard-library helpers for the macOS/Linux websmith-talks runtime."""
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
@@ -14,7 +14,7 @@ DEFAULT_CONFIG = {
     "schema": 2,
     "transport": "gmail",
     "recipient": "trtalks@techreloaded.it",
-    "sender_name": "TRTalks",
+    "sender_name": "websmith-talks",
     "reply_to": "",
     "send_enabled": True,
 }
@@ -119,6 +119,8 @@ def validate_config(value):
 
 
 def load_config(root):
-    path = plain_path(Path(root) / ".trtalks" / "config.local.json")
+    if plain_path(Path(root) / ".trtalks").exists():
+        raise ValueError("Installazione TRTalks da migrare: eseguire il nuovo installer con --upgrade prima di usare websmith-talks")
+    path = plain_path(Path(root) / ".websmith-talks" / "config.local.json")
     value = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     return validate_config(value)

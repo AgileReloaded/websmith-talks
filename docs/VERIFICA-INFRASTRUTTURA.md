@@ -1,6 +1,6 @@
 # Collegamento Gmail
 
-TRTalks usa il connettore Gmail della chat. Non richiede endpoint PHP, server
+websmith-talks usa il connettore Gmail della chat. Non richiede endpoint PHP, server
 MCP dedicati o credenziali di posta locali. Per il collegamento usare le
 impostazioni Google dell’app e verificare la presenza di `send_email`.
 `get_profile` prova l’account senza inviare email.

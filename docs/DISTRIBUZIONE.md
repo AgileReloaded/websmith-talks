@@ -5,6 +5,12 @@ pacchetto con `python3 scripts/build_release.py --output dist`. Il manifest
 contiene solo i file dichiarati; configurazione locale, bozze e ricevute non
 vengono distribuite. I sorgenti salvati non aggiornano la release pubblica.
 
+Il repository è `AgileReloaded/websmith-talks`; il pacchetto è
+`websmith-talks.zip` e il suo prefisso interno è `websmith-talks/`.
+Il launcher installato è `websmith-talks`, con le skill `story` e `page`.
+Per il passaggio da TRTalks usare il nuovo bootstrap sulla cartella esistente:
+vedere la sezione dedicata nel README. Il vecchio updater non gestisce il nuovo ZIP.
+
 `setup.sh` installa il pacchetto verificato. L’aggiornamento sostituisce runtime
 e skill insieme, conserva le preferenze e i file `*.local.md` e rimuove i vecchi
 parametri di connessione. I colleghi collegano Gmail nell’app; non devono

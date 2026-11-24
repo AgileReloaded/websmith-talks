@@ -27,10 +27,10 @@ def main():
     base = "https://github.com/" + args.repo + "/releases/latest/download"
     build(ROOT / "dist", base)
     notes = ROOT / "dist/release-notes.md"
-    notes.write_text("TRTalks " + version + "\n\nTRStory per case histories, catalogo di skill di conversazione e runtime comune. Installazione HTTPS con checksum, aggiornamento conservativo e consegna tramite send_email del connettore Gmail con allegato Markdown.\n\nAccount Google collegato nell’app; nessuna configurazione di server di posta locale. Collaudo remoto e vocale da verificare; vedere docs/SKILL-DI-CONVERSAZIONE.md.\n", encoding="utf-8")
+    notes.write_text("websmith-talks " + version + "\n\nSkill story e page, comando websmith-talks e stato in .websmith-talks. Migrazione delle installazioni TRTalks con il nuovo installer, conservando configurazione, documenti, regole locali e ricevute.\n\nInstallazione HTTPS con checksum, aggiornamento conservativo e consegna tramite send_email del connettore Gmail con allegato Markdown. Account Google collegato nell’app, nessuna configurazione di server di posta locale. Voce e riconoscimento delle skill da collaudare nell’app.\n", encoding="utf-8")
     command = ["gh", "release", "create", "v" + version, "--repo", args.repo, "--verify-tag",
-               "--draft", "--title", "TRTalks " + version, "--notes-file", str(notes)]
-    command.extend(str(ROOT / "dist" / asset) for asset in ("trtalks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html"))
+               "--draft", "--title", "websmith-talks " + version, "--notes-file", str(notes)]
+    command.extend(str(ROOT / "dist" / asset) for asset in ("websmith-talks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html"))
     return subprocess.run(command, cwd=ROOT).returncode
 
 

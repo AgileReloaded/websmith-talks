@@ -15,7 +15,7 @@ class GmailDeliveryTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve()
-        self.config = self.root / '.trtalks/config.local.json'
+        self.config = self.root / '.websmith-talks/config.local.json'
         atomic_json(self.config, DEFAULT_CONFIG)
         self.draft = self.root / 'story.md'
         self.raw = '# Resoconto\r\n\r\nCittà, attività e risultati.\r\n'.encode('utf-8')
@@ -37,6 +37,7 @@ class GmailDeliveryTests(unittest.TestCase):
     def test_prepare_preserves_exact_bytes_without_claiming_email_was_sent(self):
         result = self.prepare()
         self.assertFalse(result['email_sent'])
+        self.assertTrue(result['request_id'].startswith('websmith-talks-'))
         self.assertEqual(result['local_status'], 'pending')
         args = result['tool_arguments']
         self.assertEqual(Path(args['attachment_files'][0]).read_bytes(), self.raw)
@@ -51,7 +52,7 @@ class GmailDeliveryTests(unittest.TestCase):
         atomic_json(self.config, dict(DEFAULT_CONFIG, send_enabled=False))
         with self.assertRaises(ValueError):
             self.prepare()
-        self.assertFalse((self.root / '.trtalks/deliveries').exists())
+        self.assertFalse((self.root / '.websmith-talks/deliveries').exists())
 
     def test_pending_and_uncertain_block_duplicate_and_retry(self):
         result = self.prepare()
@@ -86,7 +87,7 @@ class GmailDeliveryTests(unittest.TestCase):
 
     def test_old_attempt_preserved_and_not_retried(self):
         request = 'trtalks-' + 'a' * 32
-        path = self.root / '.trtalks/deliveries' / (request + '.json')
+        path = self.root / '.websmith-talks/deliveries' / (request + '.json')
         original = {'transport': 'smtp', 'status': 'failed_safe', 'document_sha256': self.sha}
         atomic_json(path, original)
         with self.assertRaises(ValueError):

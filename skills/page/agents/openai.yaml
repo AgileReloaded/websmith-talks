@@ -1,0 +1,4 @@
+interface:
+  display_name: "Page"
+  short_description: "Raccoglie contenuti e indicazioni per una pagina web"
+  default_prompt: "Usa $page per preparare una pagina web, una domanda alla volta."

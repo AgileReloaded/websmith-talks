@@ -7,9 +7,9 @@ GMAIL_TOOL = "mcp__codex_apps__gmail_send_email"
 
 def gmail_arguments(recipient, attachment_path, filename, name, reply_to=""):
     arguments = {
-        "to": recipient, "subject": "TRTalks — " + filename,
+        "to": recipient, "subject": "websmith-talks — " + filename,
         "payload": {"mime_type": "text/html", "body": {"content":
-            "<p>Resoconto TRTalks preparato da " + html.escape(name or "TRTalks")
+            "<p>Resoconto websmith-talks preparato da " + html.escape(name or "websmith-talks")
             + ".</p><p>Il documento Markdown completo è allegato.</p>"}},
         "attachment_files": [str(attachment_path)],
     }

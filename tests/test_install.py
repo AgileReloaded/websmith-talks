@@ -20,7 +20,7 @@ import manage
 
 class InstallTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="trtalks-install-tests-")
+        self.temp = tempfile.TemporaryDirectory(prefix="websmith-talks-install-tests-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve() / "interviews"
         self.raw, self.sha = package("0.3.0a1")
@@ -31,7 +31,7 @@ class InstallTests(unittest.TestCase):
 
     def test_application_skill_mode_preserves_protected_skill_and_supports_updates(self):
         self.install()
-        protected = self.root / ".agents/skills/trstory/SKILL.md"
+        protected = self.root / ".agents/skills/story/SKILL.md"
         original = protected.read_bytes()
         replace = os.replace
         def forbid_skill_mutation(source, destination):
@@ -43,50 +43,50 @@ class InstallTests(unittest.TestCase):
             self.assertTrue(result["changed"])
             self.assertEqual(protected.read_bytes(), original)
             manage.inspect_installation(self.root)
-            self.assertIn(".trtalks/app/skills/ID/", (self.root / "AGENTS.md").read_text())
+            self.assertIn(".websmith-talks/app/skills/ID/", (self.root / "AGENTS.md").read_text())
             newer, sha = package("0.5.0a2")
             self.assertTrue(manage.install(self.root, newer, sha, update=True)["changed"])
-            paths = subprocess.run([sys.executable, str(self.root / "trtalks"), "paths"],
+            paths = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "paths"],
                                    capture_output=True, text=True, check=True)
-            self.assertEqual(json.loads(paths.stdout)["skills"]["trstory"], str(self.root / ".trtalks/app/skills/trstory"))
+            self.assertEqual(json.loads(paths.stdout)["skills"]["story"], str(self.root / ".websmith-talks/app/skills/story"))
             manage.uninstall(self.root)
             self.assertEqual(protected.read_bytes(), original)
-            self.assertFalse((self.root / ".trtalks/app").exists())
+            self.assertFalse((self.root / ".websmith-talks/app").exists())
 
     def test_installed_launcher_runs_and_refuses_overwrite(self):
         self.install()
-        result = subprocess.run([sys.executable, str(self.root / "trtalks"), "--version"], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "--version"], capture_output=True, text=True)
         self.assertEqual((result.returncode, result.stdout.strip()), (0, "0.3.0a1"), result.stderr)
         with self.assertRaises(ValueError):
             self.install()
 
     def test_update_preserves_configuration_credentials_drafts_state_and_local_rules(self):
         self.install()
-        local = self.root / ".trtalks/config.local.json"
+        local = self.root / ".websmith-talks/config.local.json"
         atomic_json(local, dict(manage.DEFAULT_CONFIG, schema=1, transport="smtp", smtp_password="synthetic-private-test-value",
                                 smtp_username="local@techreloaded.it", recipient="info@techreloaded.it"))
         before = local.read_bytes()
         draft = self.root / "drafts/intervista.md"
         draft.parent.mkdir()
         draft.write_text("Bozza da conservare")
-        state = self.root / ".trtalks/deliveries/retained.json"
+        state = self.root / ".websmith-talks/deliveries/retained.json"
         atomic_json(state, {"id": "retained"})
-        override = self.root / ".agents/skills/trstory/references/regole.local.md"
+        override = self.root / ".agents/skills/story/references/regole.local.md"
         override.write_text("Regole locali")
         result = manage.install(self.root, self.new, self.new_sha, update=True)
         self.assertTrue(result["changed"])
         self.assertEqual(json.loads(local.read_text()), validate_config(json.loads(before)))
         self.assertFalse(any("synthetic-private-test-value" in p.read_text()
-                             for p in (self.root / ".trtalks/backups").rglob("*") if p.is_file()))
+                             for p in (self.root / ".websmith-talks/backups").rglob("*") if p.is_file()))
         self.assertEqual(local.stat().st_mode & 0o777, 0o600)
         self.assertEqual(draft.read_text(), "Bozza da conservare")
         self.assertEqual(json.loads(state.read_text()), {"id": "retained"})
         self.assertEqual(override.read_text(), "Regole locali")
-        self.assertTrue(list((self.root / ".trtalks/backups").iterdir()))
+        self.assertTrue(list((self.root / ".websmith-talks/backups").iterdir()))
 
     def test_modified_managed_file_stops_update(self):
         self.install()
-        skill = self.root / ".agents/skills/trstory/SKILL.md"
+        skill = self.root / ".agents/skills/story/SKILL.md"
         skill.write_text("Personalizzato")
         with self.assertRaises(ValueError):
             manage.install(self.root, self.new, self.new_sha, update=True)
@@ -94,25 +94,25 @@ class InstallTests(unittest.TestCase):
 
     def test_failed_update_restores_previous_program(self):
         self.install()
-        manifest_path = self.root / ".trtalks/app" / manage.MANIFEST
+        manifest_path = self.root / ".websmith-talks/app" / manage.MANIFEST
         before = manifest_path.read_bytes()
         actual_replace = os.replace
         def failing_replace(source, destination):
-            if Path(destination) == self.root / ".trtalks/install.json" and Path(source).name == "metadata":
+            if Path(destination) == self.root / ".websmith-talks/install.json" and Path(source).name == "metadata":
                 raise OSError("synthetic state write failure")
             return actual_replace(source, destination)
         with mock.patch("manage.os.replace", side_effect=failing_replace):
             with self.assertRaises(OSError):
                 manage.install(self.root, self.new, self.new_sha, update=True)
         self.assertEqual(manifest_path.read_bytes(), before)
-        result = subprocess.run([sys.executable, str(self.root / "trtalks"), "--version"], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "--version"], capture_output=True, text=True)
         self.assertEqual(result.stdout.strip(), "0.3.0a1")
 
     def test_configuration_via_installed_launcher_keeps_unknown_local_keys(self):
         self.install()
-        config = self.root / ".trtalks/config.local.json"
+        config = self.root / ".websmith-talks/config.local.json"
         atomic_json(config, {"schema": 1, "custom_private_key": "synthetic-local-value"})
-        result = subprocess.run([sys.executable, str(self.root / "trtalks"), "configure", "--name", "Test Name"],
+        result = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "configure", "--name", "Test Name"],
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         current = json.loads(config.read_text())
@@ -126,7 +126,7 @@ class InstallTests(unittest.TestCase):
         self.assertFalse(self.root.exists())
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w") as z:
-            z.writestr("trtalks/../../escaped.py", "bad")
+            z.writestr("websmith-talks/../../escaped.py", "bad")
         raw = buffer.getvalue()
         with self.assertRaises(ValueError):
             manage.install(self.root, raw, digest(raw))
@@ -134,12 +134,12 @@ class InstallTests(unittest.TestCase):
 
     def test_remote_update_download_validation_and_local_state_preservation(self):
         self.install()
-        config = self.root / ".trtalks/config.local.json"
+        config = self.root / ".websmith-talks/config.local.json"
         before = config.read_bytes()
         def download(url, limit):
             if url.endswith("/SHA256SUMS"):
-                return (self.new_sha + "  trtalks.zip\n").encode("ascii")
-            self.assertTrue(url.endswith("/trtalks.zip"))
+                return (self.new_sha + "  websmith-talks.zip\n").encode("ascii")
+            self.assertTrue(url.endswith("/websmith-talks.zip"))
             return self.new
         with mock.patch("manage.download", side_effect=download):
             result = manage.remote_update(self.root)
@@ -148,7 +148,7 @@ class InstallTests(unittest.TestCase):
 
     def test_dry_run_and_downgrade_do_not_change_installation(self):
         self.install()
-        target = self.root / ".trtalks/app"
+        target = self.root / ".websmith-talks/app"
         before = (target / manage.MANIFEST).read_bytes()
         result = manage.install(self.root, self.new, self.new_sha, update=True, dry_run=True)
         self.assertFalse(result["changed"])
@@ -163,11 +163,11 @@ class InstallTests(unittest.TestCase):
         other = self.root / ".agents/skills/other/SKILL.md"
         other.parent.mkdir()
         other.write_text("Other skill")
-        config = (self.root / ".trtalks/config.local.json").read_bytes()
+        config = (self.root / ".websmith-talks/config.local.json").read_bytes()
         manage.uninstall(self.root)
-        self.assertFalse((self.root / ".agents/skills/trstory").exists())
-        self.assertFalse((self.root / "trtalks").exists())
-        self.assertEqual((self.root / ".trtalks/config.local.json").read_bytes(), config)
+        self.assertFalse((self.root / ".agents/skills/story").exists())
+        self.assertFalse((self.root / "websmith-talks").exists())
+        self.assertEqual((self.root / ".websmith-talks/config.local.json").read_bytes(), config)
         self.assertEqual(other.read_text(), "Other skill")
 
     def test_package_is_deterministic_and_contains_no_private_files(self):
@@ -197,17 +197,17 @@ class InstallTests(unittest.TestCase):
         self.install()
         raw, sha = self.multi_skill_package()
         result = manage.install(self.root, raw, sha, update=True)
-        self.assertEqual(result["skills"], ["trdemo", "trpage", "trstory"])
+        self.assertEqual(result["skills"], ["page", "story", "trdemo"])
         for key in result["skills"]:
             self.assertTrue((self.root / ".agents/skills" / key / "SKILL.md").is_file())
             self.assertFalse((self.root / ".agents/skills" / key / "scripts/send_document.py").exists())
-        completed = subprocess.run([sys.executable, str(self.root / "trtalks"), "skills"], capture_output=True, text=True)
+        completed = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "skills"], capture_output=True, text=True)
         self.assertEqual(completed.returncode, 0, completed.stderr)
-        self.assertEqual({s["invoke"] for s in json.loads(completed.stdout)["skills"]}, {"$trstory", "$trpage", "$trdemo"})
-        paths = subprocess.run([sys.executable, str(self.root / "trtalks"), "paths"], capture_output=True, text=True)
-        self.assertEqual(json.loads(paths.stdout)["runtime"], str(self.root / ".trtalks/app/runtime"))
+        self.assertEqual({s["invoke"] for s in json.loads(completed.stdout)["skills"]}, {"$story", "$page", "$trdemo"})
+        paths = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "paths"], capture_output=True, text=True)
+        self.assertEqual(json.loads(paths.stdout)["runtime"], str(self.root / ".websmith-talks/app/runtime"))
 
-    def test_update_adds_trpage_to_story_only_installation_and_preserves_local_data(self):
+    def test_update_adds_page_to_story_only_installation_and_preserves_local_data(self):
         source = Path(self.temp.name) / "story-only-source"
         _, files = manage.read_archive(self.raw, self.sha)
         for name, raw in files.items():
@@ -216,35 +216,36 @@ class InstallTests(unittest.TestCase):
             target.write_bytes(raw)
         catalog_path = source / "conversations.json"
         catalog = json.loads(catalog_path.read_text())
-        catalog["skills"] = [s for s in catalog["skills"] if s["id"] != "trpage"]
+        catalog["skills"] = [s for s in catalog["skills"] if s["id"] != "page"]
+        catalog["renames"] = {k: v for k, v in catalog["renames"].items() if v != "page"}
         catalog_path.write_bytes(canonical(catalog))
         raw, sha = package("0.3.0a1", source=source)
         manage.install(self.root, raw, sha)
-        self.assertFalse((self.root / ".agents/skills/trpage").exists())
-        config = self.root / ".trtalks/config.local.json"
+        self.assertFalse((self.root / ".agents/skills/page").exists())
+        config = self.root / ".websmith-talks/config.local.json"
         before = config.read_bytes()
         draft = self.root / "drafts/pagina-esistente.md"
         draft.parent.mkdir()
         draft.write_text("Documento da conservare")
-        override = self.root / ".trtalks/overrides/trpage/references/domande.local.md"
+        override = self.root / ".websmith-talks/overrides/page/references/domande.local.md"
         override.parent.mkdir(parents=True)
         override.write_text("Domande locali da conservare")
 
         result = manage.install(self.root, self.new, self.new_sha, update=True)
 
-        self.assertEqual(result["skills"], ["trpage", "trstory"])
+        self.assertEqual(result["skills"], ["page", "story"])
         current_catalog = json.loads((ROOT / "conversations.json").read_text())
-        entry = next(s for s in current_catalog["skills"] if s["id"] == "trpage")
+        entry = next(s for s in current_catalog["skills"] if s["id"] == "page")
         for name in entry["files"]:
-            self.assertEqual((self.root / ".agents/skills/trpage" / name).read_bytes(),
-                             (ROOT / "skills/trpage" / name).read_bytes())
+            self.assertEqual((self.root / ".agents/skills/page" / name).read_bytes(),
+                             (ROOT / "skills/page" / name).read_bytes())
         self.assertEqual(config.read_bytes(), before)
         self.assertEqual(draft.read_text(), "Documento da conservare")
         self.assertEqual(override.read_text(), "Domande locali da conservare")
-        completed = subprocess.run([sys.executable, str(self.root / "trtalks"), "skills"],
+        completed = subprocess.run([sys.executable, str(self.root / "websmith-talks"), "skills"],
                                    capture_output=True, text=True, check=True)
         self.assertEqual({s["invoke"] for s in json.loads(completed.stdout)["skills"]},
-                         {"$trstory", "$trpage"})
+                         {"$story", "$page"})
 
     def test_new_skill_conflict_stops_entire_update(self):
         self.install()
@@ -255,7 +256,7 @@ class InstallTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             manage.install(self.root, raw, sha, update=True)
         self.assertEqual(target.read_text(), "Skill indipendente")
-        self.assertEqual(manage.installed_manifest(self.root / ".trtalks/app")["version"], "0.3.0a1")
+        self.assertEqual(manage.installed_manifest(self.root / ".websmith-talks/app")["version"], "0.3.0a1")
 
     def test_removed_managed_skill_is_backed_up_with_its_local_rules(self):
         self.install()
@@ -266,7 +267,7 @@ class InstallTests(unittest.TestCase):
         raw, sha = package("0.3.0a3")
         manage.install(self.root, raw, sha, update=True)
         self.assertFalse(local.parent.exists())
-        backups = list((self.root / ".trtalks/backups").rglob("demo.local.md"))
+        backups = list((self.root / ".websmith-talks/backups").rglob("demo.local.md"))
         self.assertTrue(any(p.read_text() == "Da conservare" for p in backups))
 
     def test_existing_project_instructions_are_never_overwritten_or_deleted(self):
@@ -299,10 +300,10 @@ class InstallTests(unittest.TestCase):
         result = manage.install(self.root, self.raw, self.sha, update=True)
         self.assertTrue(result["migrated_legacy_installation"])
         self.assertFalse(legacy.exists())
-        self.assertEqual((self.root / ".agents/skills/trstory/references/regole.local.md").read_text(), "Regole del caso")
-        self.assertEqual((self.root / ".trtalks/app/runtime/references/backend.local.md").read_text(), "Regole condivise")
-        self.assertEqual(json.loads(config.read_text()), validate_config(json.loads(before)))
-        self.assertEqual(json.loads(retained.read_text())["request_id"], "retained-original-id")
+        self.assertEqual((self.root / ".agents/skills/story/references/regole.local.md").read_text(), "Regole del caso")
+        self.assertEqual((self.root / ".websmith-talks/app/runtime/references/backend.local.md").read_text(), "Regole condivise")
+        self.assertEqual(json.loads((self.root / ".websmith-talks/config.local.json").read_text()), validate_config(json.loads(before)))
+        self.assertEqual(json.loads((self.root / ".websmith-talks/deliveries/retained.json").read_text())["request_id"], "retained-original-id")
 
 
 if __name__ == "__main__":

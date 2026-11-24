@@ -56,7 +56,7 @@ def dry_run(root, file, name=None, email=None):
 
 def probe(root):
     target = plain_path(Path(root) / "artifacts/prova-gmail.md")
-    raw = "# Prova TRTalks\n\nDocumento fittizio per verificare il formato.\n".encode("utf-8")
+    raw = "# Prova websmith-talks\n\nDocumento fittizio per verificare il formato.\n".encode("utf-8")
     target.parent.mkdir(parents=True, exist_ok=True)
     try:
         with target.open("xb") as stream:
@@ -69,9 +69,9 @@ def probe(root):
 
 
 def record_path(root, request_id):
-    if not re.fullmatch(r"trtalks-[a-f0-9]{32}", request_id):
+    if not re.fullmatch(r"(?:websmith-talks|trtalks)-[a-f0-9]{32}", request_id):
         raise ValueError("request_id non valido")
-    return plain_path(Path(root) / ".trtalks/deliveries" / (request_id + ".json"))
+    return plain_path(Path(root) / ".websmith-talks/deliveries" / (request_id + ".json"))
 
 
 def cached_result(record, path):
@@ -87,11 +87,13 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
     args, sha = validated_document(file, config, name, email)
     if approved_sha256 != sha or not isinstance(authorization, str) or not authorization.strip():
         raise ValueError("Manca l'autorizzazione esplicita o la bozza differisce dalla versione autorizzata")
-    with locked(root / ".trtalks/delivery.lock"):
-        directory = plain_path(root / ".trtalks/deliveries")
+    with locked(root / ".websmith-talks/delivery.lock"):
+        directory = plain_path(root / ".websmith-talks/deliveries")
         directory.mkdir(parents=True, exist_ok=True, mode=0o700)
         fingerprint = digest(canonical({"recipient": config["recipient"], "arguments": args}))
-        for path in directory.glob("trtalks-*.json"):
+        for path in directory.glob("*.json"):
+            if not re.fullmatch(r"(?:websmith-talks|trtalks)-[a-f0-9]{32}\.json", path.name):
+                continue
             record = json.loads(plain_path(path).read_text(encoding="utf-8"))
             if record["document_sha256"] != sha:
                 continue
@@ -102,7 +104,7 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
             if record["status"] == "accepted":
                 return cached_result(record, path)
             raise ValueError("Tentativo già preparato o esito incerto: verificare Gmail, nessun reinvio automatico. ID: " + record["request_id"])
-        request_id = "trtalks-" + uuid.uuid4().hex
+        request_id = "websmith-talks-" + uuid.uuid4().hex
         # Keep exactly the authorized bytes if the original is edited later.
         snapshot_dir = plain_path(directory / request_id)
         snapshot_dir.mkdir(mode=0o700)
@@ -125,7 +127,7 @@ def send(root, file, approved_sha256, authorization, name=None, email=None):
 
 
 def record_result(root, request_id, receipt_file):
-    with locked(Path(root) / ".trtalks/delivery.lock"):
+    with locked(Path(root) / ".websmith-talks/delivery.lock"):
         path = record_path(root, request_id)
         record = json.loads(path.read_text(encoding="utf-8"))
         if record.get("transport") != "gmail" or record.get("request_id") != request_id:
@@ -153,7 +155,7 @@ def record_result(root, request_id, receipt_file):
 
 
 def retry(root, request_id):
-    with locked(Path(root) / ".trtalks/delivery.lock"):
+    with locked(Path(root) / ".websmith-talks/delivery.lock"):
         path = record_path(root, request_id)
         record = json.loads(path.read_text(encoding="utf-8"))
         if record.get("transport") == "gmail" and record["status"] == "accepted":

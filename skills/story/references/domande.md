@@ -1,7 +1,7 @@
 # Traccia delle domande
 
 Fonte: TRInterview.zip, skills/instructions/SKILL.md, letto il 23 novembre 2026.
-La traccia è riportata dalla fonte. Applicare sempre la regola TRTalks di una
+La traccia è riportata dalla fonte. Applicare sempre la regola websmith-talks di una
 sola domanda per turno, dividendo le formulazioni composte e rispettando salti,
 correzioni, conclusione anticipata e numero di pannelli scelto dalla persona.
 

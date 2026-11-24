@@ -1,19 +1,18 @@
-# TRTalks e le skill di conversazione
+# websmith-talks e le skill di conversazione
 
-TRTalks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
-**TRStory** raccoglie case histories e si invoca con `$trstory`; **TRPage** prepara
-pagine web e si invoca con `$trpage`. TRPage è aggiunta nei sorgenti di sviluppo
-per la prossima release; `VERSION` resta invariato fino alla preparazione della
-release. Nel precedente sorgente TRStory aveva ID `trtalks`; i progetti esterni
-TRInterview/TRConversations non sono stati rinominati.
+websmith-talks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
+**Story** raccoglie case histories e si invoca con `$story`; **Page** prepara
+pagine web e si invoca con `$page`. La versione di sviluppo è 0.6.0a1.
+Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
+I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
 ## Organizzazione dei sorgenti
 
 | Percorso | Contenuto |
 | --- | --- |
 | `conversations.json` | Catalogo delle skill: ID, nome, descrizione e lista dei file |
-| `skills/trstory/` | SKILL.md, metadati UI, domande, regole e template delle case histories |
-| `skills/trpage/` | SKILL.md, metadati UI, domande, regole e modello per una pagina web |
+| `skills/story/` | SKILL.md, metadati UI, domande, regole e template delle case histories |
+| `skills/page/` | SKILL.md, metadati UI, domande, regole e modello per una pagina web |
 | `runtime/` | CLI, installazione, update, preparazione Gmail, ricevute e verifiche comuni |
 | `runtime/references/` | Contratto backend e istruzioni di invio comuni |
 | `scripts/` | Costruzione e pubblicazione dell’applicazione |
@@ -36,10 +35,10 @@ documenti e non autorizza un invio.
 
 Installer, pagina di istruzioni ed elenco CLI leggono il catalogo. Per una
 seconda skill non occorre modificare il codice di installazione o di consegna.
-Il catalogo di sviluppo contiene TRStory e TRPage. La skill TRDemo usata nei
+Il catalogo di sviluppo contiene Story e Page. La skill TRDemo usata nei
 test è una fixture temporanea e non viene distribuita.
 
-TRPage raccoglie scopo, destinatari, messaggio, titolo, abstract e contenuti;
+Page raccoglie scopo, destinatari, messaggio, titolo, abstract e contenuti;
 chiede se servono CTA e hero, il template, la posizione e l'URL finale, i link
 per raggiungere la pagina e quelli nel contenuto. Produce una bozza Markdown
 con brief, testi e indicazioni di realizzazione separate. Non pubblica sul sito;
@@ -49,7 +48,9 @@ vengono saltate; informazioni mancanti e proposte restano esplicite.
 
 Per una rinomina aggiungere `vecchio-id: nuovo-id` alla mappa `renames` del
 catalogo. Serve a trasferire le personalizzazioni Markdown locali; l’ID vecchio
-non deve essere ancora una skill attiva. La mappa attuale è `trtalks → trstory`.
+non deve essere ancora una skill attiva. La mappa attuale è `trtalks → story`,
+`trstory → story`, `trpage → page`. Più nomi precedenti possono convergere sullo
+stesso ID; personalizzazioni dello stesso file con byte diversi bloccano il passaggio.
 
 ## Installazione e scelta
 
@@ -57,15 +58,15 @@ Nel progetto installato:
 
 | Percorso | Responsabilità |
 | --- | --- |
-| `.trtalks/app/` | Applicazione e manifest della release |
-| `.trtalks/app/runtime/` | Programma condiviso |
+| `.websmith-talks/app/` | Applicazione e manifest della release |
+| `.websmith-talks/app/runtime/` | Programma condiviso |
 | `.agents/skills/ID/` | Ciascuna skill visibile a Codex |
-| `.trtalks/config.local.json` | Impostazioni locali conservate |
-| `.trtalks/overrides/ID/` | Personalizzazioni per la conversazione |
-| `.trtalks/deliveries/` | Payload, request_id e ricevute persistenti |
+| `.websmith-talks/config.local.json` | Impostazioni locali conservate |
+| `.websmith-talks/overrides/ID/` | Personalizzazioni per la conversazione |
+| `.websmith-talks/deliveries/` | Payload, request_id e ricevute persistenti |
 
-`trtalks skills` elenca le conversazioni e i rispettivi prompt.
-`trtalks paths` mostra i percorsi effettivi del runtime e delle skill.
+`websmith-talks skills` elenca le conversazioni e i rispettivi prompt.
+`websmith-talks paths` mostra i percorsi effettivi del runtime e delle skill.
 
 Se `AGENTS.md` non esiste, l’installer crea una breve istruzione generale:
 scegliere la skill coerente con la richiesta; con una richiesta generica e una
@@ -74,28 +75,37 @@ di progetto già esistenti non vengono sovrascritte o cancellate.
 
 Gli aggiornamenti gestiscono l’insieme delle skill dichiarate. Le skill rimosse
 dal catalogo vengono disattivate e conservate nei backup, incluse le rispettive
-regole locali. Una skill con lo stesso nome ma non gestita da TRTalks blocca
+regole locali. Una skill con lo stesso nome ma non gestita da websmith-talks blocca
 l’aggiornamento invece di essere sovrascritta. Altre skill del progetto restano
 invariate. Runtime e skill vengono ripristinati se una sostituzione fallisce.
 
 ## Passaggio dalla struttura precedente
 
-Non è stata ancora pubblicata una release remota della vecchia struttura.
-Per eventuali installazioni locali 0.2.0a1, eseguire il nuovo `setup.sh` oppure
-il nuovo `runtime/manage.py install --upgrade` con archivio e checksum.
-Il vecchio updater non comprende il manifest della nuova struttura: non basta
-servirgli il nuovo ZIP senza aggiornare il bootstrap.
+Il nuovo installer riconosce le installazioni TRTalks con runtime comune e le
+precedenti installazioni con skill singola. Usare il nuovo `setup.sh` indicando
+la cartella esistente con `WEBSMITH_TALKS_HOME`, oppure il nuovo
+`runtime/manage.py install --upgrade` con archivio e checksum. Il vecchio updater
+non comprende il nuovo nome del pacchetto: non basta servirgli il nuovo ZIP.
 
-Il nuovo installer riconosce il manifest precedente e sposta le personalizzazioni
-della skill `trtalks` nella nuova `trstory`; le personalizzazioni di backend e
-invio passano alle regole condivise. Configurazione, bozze e stato di consegna
-restano nella stessa posizione, senza rigenerare gli ID delle richieste.
+Lo stato passa da `.trtalks` a `.websmith-talks`; il launcher diventa
+`websmith-talks`. Le personalizzazioni delle skill e degli override seguono le
+rinomine del catalogo. Per la skill singola, backend e invio passano alle regole
+condivise. Bozze e altri documenti del progetto restano nella loro posizione.
+Ricevute e allegati conservano i byte e gli ID delle richieste, anche se i percorsi
+storici dentro le ricevute contengono ancora `.trtalks`: gli allegati sono ora
+sotto `.websmith-talks/deliveries/`. Non si avvia alcun invio durante il passaggio.
+
+Il nuovo archivio ammette soltanto il manifest `websmith-talks`; i manifest
+`trtalks` sono letti solo per riconoscere le installazioni da migrare.
+La presenza contemporanea di entrambe le directory di stato blocca la procedura;
+non vengono fuse automaticamente. Una sostituzione fallita ripristina runtime,
+launcher, skill, configurazione e istruzioni precedenti.
 
 ## Verifiche e limiti
 
-Il runtime 0.5.0a1 prepara la consegna per `send_email` del connettore Gmail.
+Il runtime 0.6.0a1 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
-nella configurazione TRTalks. Le skill leggono il destinatario effettivo.
+nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
 `status` mostra le preferenze senza rete; `get_profile` di Gmail verifica
 l’account; `probe` crea solo una bozza locale.
 

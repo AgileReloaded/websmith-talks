@@ -3,38 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="trtalks-release-url" content="">
-<title>Installa TRTalks</title>
+<meta name="websmith-talks-release-url" content="">
+<title>Installa websmith-talks</title>
 <style>
 :root{font-family:system-ui,sans-serif;color:#251638;background:#faf8fd;line-height:1.6}body{max-width:850px;margin:60px auto;padding:0 24px}h1{font-size:3rem;line-height:1.1;margin-bottom:12px}h2{margin-top:40px;font-size:1.35rem}small{color:#655671}.tag{color:#7441a5;font-weight:700}pre{padding:20px;background:#281b38;color:#faf5ff;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:12px}button{padding:10px 18px;border:0;border-radius:8px;color:white;background:#7441a5;font:inherit;cursor:pointer}button:disabled{opacity:.5;cursor:default}li{margin:12px 0}a{color:#65329c}.note{padding:16px 20px;border-left:4px solid #9161c2;background:#f0e9f8}
 </style>
 </head>
 <body>
-<p class="tag">TechReloaded · TRTalks</p>
+<p class="tag">TechReloaded · websmith-talks</p>
 <h1>Racconta un caso.<br>Prepara una pagina.</h1>
-<p>TRTalks raccoglie diverse tipologie di conversazione nell’app Codex. Ogni skill ha uno scopo e una propria traccia. Non richiede un plugin ChatGPT.</p>
+<p>websmith-talks raccoglie diverse tipologie di conversazione nell’app Codex. Ogni skill ha uno scopo e una propria traccia. Non richiede un plugin ChatGPT.</p>
 <h2>1. Installa</h2>
 <p>Servono macOS o Linux, Python 3.9 o successivo e l’app Codex con il tuo accesso. Apri il Terminale e incolla il comando:</p>
 <pre id="install">URL di distribuzione non ancora configurato.</pre>
 <button id="copy" disabled>Copia comando</button>
-<p><small>L’installazione crea la cartella TRTalks nella tua cartella personale. Non invia email.</small></p>
+<p><small>L’installazione crea la cartella websmith-talks nella tua cartella personale. Non invia email.</small></p>
 <h2>2. Collega Gmail per le consegne email</h2>
-<p>Se vuoi consegnare i documenti via email, collega il tuo account Google e rendi disponibile il connettore Gmail nella chat. L’assistente userà send_email per la consegna. Per preparare e salvare una pagina con TRPage non serve Gmail. Non servono password o parametri di connessione in TRTalks.</p>
-<h2>3. Apri TRTalks in Codex</h2>
-<p>Aggiungi la cartella <code>~/TRTalks</code> come progetto e scegli la skill:</p>
-<!-- trtalks:skills --><ul><li><strong>TRStory</strong> — raccoglie case histories per TechReloaded.<br><code>Usa $trstory</code></li><li><strong>TRPage</strong> — prepara contenuti e indicazioni per una pagina web.<br><code>Usa $trpage</code></li></ul><!-- /trtalks:skills -->
-<p><small>TRPage sarà disponibile nell’installer pubblico con la prossima release.</small></p>
-<p>Puoi anche chiedere all’assistente di mostrarti le conversazioni TRTalks disponibili.</p>
+<p>Se vuoi consegnare i documenti via email, collega il tuo account Google e rendi disponibile il connettore Gmail nella chat. L’assistente userà send_email per la consegna. Per preparare e salvare una pagina con Page non serve Gmail. Non servono password o parametri di connessione in websmith-talks.</p>
+<h2>3. Apri websmith-talks in Codex</h2>
+<p>Aggiungi la cartella <code>~/websmith-talks</code> come progetto e scegli la skill:</p>
+<!-- websmith-talks:skills --><ul><li><strong>Story</strong> — raccoglie case histories per TechReloaded.<br><code>Usa $story</code></li><li><strong>Page</strong> — prepara contenuti e indicazioni per una pagina web.<br><code>Usa $page</code></li></ul><!-- /websmith-talks:skills -->
+<p><small>Page sarà disponibile nell’installer pubblico con la prossima release.</small></p>
+<p>Puoi anche chiedere all’assistente di mostrarti le conversazioni websmith-talks disponibili.</p>
 <p>Puoi correggere una risposta, saltare una domanda o concludere. Alla fine ricevi il file completo. La conversazione può essere testuale; la disponibilità della voce va verificata nella tua app.</p>
 <h2>4. Rivedi il documento</h2>
-<p>TRPage salva una bozza con i testi e le indicazioni per template, hero, CTA e link, senza pubblicare sul sito. Se chiedi anche la consegna alla redazione, l’assistente mostra il documento e raccoglie la tua autorizzazione. Poi prepara l’allegato e lo invia con Gmail: non devi lanciare comandi di invio.</p>
+<p>Page salva una bozza con i testi e le indicazioni per template, hero, CTA e link, senza pubblicare sul sito. Se chiedi anche la consegna alla redazione, l’assistente mostra il documento e raccoglie la tua autorizzazione. Poi prepara l’allegato e lo invia con Gmail: non devi lanciare comandi di invio.</p>
 <p class="note">Il mittente è l’account Google collegato. Il destinatario iniziale è trtalks@techreloaded.it ed è configurabile. Se Gmail non è disponibile o la consegna fallisce, il documento rimane disponibile e l’assistente indica l’esito effettivo.</p>
 <h2>Aggiorna o disinstalla</h2>
-<pre>~/TRTalks/trtalks update
-~/TRTalks/trtalks uninstall</pre>
+<pre>~/websmith-talks/websmith-talks update
+~/websmith-talks/websmith-talks uninstall</pre>
 <p>Gli aggiornamenti conservano impostazioni locali, bozze e stato degli invii. La disinstallazione disattiva la skill e conserva i tuoi documenti.</p>
+<h2>Passaggio da TRTalks</h2>
+<p>Usa il nuovo installer indicando la cartella esistente con <code>WEBSMITH_TALKS_HOME</code>. Il vecchio comando <code>trtalks update</code> non comprende il nuovo pacchetto. Configurazioni, bozze, regole locali e ricevute vengono conservate; lo stato diventa <code>.websmith-talks</code> e le skill diventano <code>story</code> e <code>page</code>. Le istruzioni complete sono nel README del repository.</p>
 <script>
-const base=document.querySelector('meta[name="trtalks-release-url"]').content;
+const base=document.querySelector('meta[name="websmith-talks-release-url"]').content;
 if(base){try{const u=new URL(base);if(u.protocol==='https:'&&!u.username&&!u.password&&!u.search&&!u.hash){
 const safe=base.replace(/'/g,"'\\''");
 document.getElementById('install').textContent="curl --proto '=https' --proto-redir '=https' -fsSL '"+safe+"/setup.sh' | bash";

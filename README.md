@@ -1,52 +1,53 @@
-# TRTalks
+# websmith-talks
 
-TRTalks raccoglie conversazioni nell’app Codex. **TRStory** conduce interviste
-su casi reali e prepara un resoconto Markdown. **TRPage** raccoglie contenuti
+websmith-talks raccoglie conversazioni nell’app Codex. **Story** conduce interviste
+su casi reali e prepara un resoconto Markdown. **Page** raccoglie contenuti
 e indicazioni per una pagina web: scopo, destinatari, titolo, abstract, corpo,
 CTA, template, hero, posizione e collegamenti. Le conversazioni seguono una
 domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione **0.5.0a1**: consegna Gmail, eliminazione della configurazione SMTP
-e del comando `init`. Il mittente è l’account Google collegato all’app.
+Versione di sviluppo **0.6.0a1**: rinomina da TRTalks, comando `websmith-talks`,
+skill `story` e `page` e stato in `.websmith-talks`. La consegna resta Gmail:
+il mittente è l’account Google collegato all’app.
 
 ## Installazione e collegamento
 
 Servono macOS/Linux, Python 3.9+, curl e l’app Codex. Per la consegna email serve
 anche il connettore Gmail che espone `send_email` nella chat.
-Il collegamento Google si effettua nell’app. TRTalks non richiede
+Il collegamento Google si effettua nell’app. websmith-talks non richiede
 password, host, porte o variabili di connessione. Se il tool non è disponibile
 nella chat, l’agente lo segnala e conserva il documento.
 
-Il comando pubblico scarica la release pubblicata, che può essere precedente
-ai sorgenti locali finché la nuova versione non viene pubblicata:
+Il comando seguente sarà utilizzabile dopo la pubblicazione della prima release
+nel nuovo repository; questa modifica ai sorgenti non pubblica una release:
 
 ```bash
-curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/TRTalks/releases/latest/download/setup.sh | bash
+curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh | bash
 ```
 
-Aprire la cartella TRTalks nell’app e scrivere:
+Aprire la cartella websmith-talks nell’app e scrivere:
 
-> Usa $trstory per raccogliere un caso TechReloaded.
+> Usa $story per raccogliere un caso TechReloaded.
 
 Per preparare una pagina web:
 
-> Usa $trpage per preparare una pagina web, una domanda alla volta.
+> Usa $page per preparare una pagina web, una domanda alla volta.
 
-TRPage è presente nei sorgenti di sviluppo; sarà disponibile nell'installer
+Page è presente nei sorgenti di sviluppo; sarà disponibile nell'installer
 pubblico dopo la prossima release. Le domande sono in
-[skills/trpage/references/domande.md](skills/trpage/references/domande.md).
+[skills/page/references/domande.md](skills/page/references/domande.md).
 La bozza viene salvata come `drafts/pagina-<slug>.md`, con suffisso se il file
 esiste già. Include i testi e le indicazioni di realizzazione separate, con
 le scelte ancora aperte. CTA e hero sono facoltative. La conversazione non
 pubblica la pagina e la consegna email si esegue solo se richiesta e autorizzata.
 
-`trtalks skills` elenca le conversazioni; `trtalks paths` mostra i percorsi.
+`websmith-talks skills` elenca le conversazioni; `websmith-talks paths` mostra i percorsi.
 Il destinatario iniziale è `trtalks@techreloaded.it`. Si può cambiare con:
 
 ```bash
-~/TRTalks/trtalks configure --recipient info@techreloaded.it
+~/websmith-talks/websmith-talks configure --recipient info@techreloaded.it
 ```
 
 Restano disponibili `--name` (autore nel corpo email), `--email` (Reply-To),
@@ -82,9 +83,9 @@ fittizio locale. Nessun test tecnico autorizza una spedizione.
 ## Aggiornamenti
 
 ```bash
-~/TRTalks/trtalks update --dry-run
-~/TRTalks/trtalks update
-~/TRTalks/trtalks uninstall
+~/websmith-talks/websmith-talks update --dry-run
+~/websmith-talks/websmith-talks update
+~/websmith-talks/websmith-talks uninstall
 ```
 
 L’aggiornamento conserva destinatario, preferenze, bozze, ricevute e regole
@@ -92,6 +93,37 @@ L’aggiornamento conserva destinatario, preferenze, bozze, ricevute e regole
 senza conservarne la password nel backup della migrazione. Manifest e checksum
 verificano i file; modifiche estranee bloccano la sostituzione. La disinstallazione
 conserva i documenti e lo stato delle consegne.
+
+## Passaggio da TRTalks
+
+Usare il **nuovo installer** indicando la cartella dell’installazione esistente,
+senza rinominarla o spostarla prima. Dopo la pubblicazione della release:
+
+```bash
+curl --proto '=https' --proto-redir '=https' -fsSL https://github.com/AgileReloaded/websmith-talks/releases/latest/download/setup.sh -o /tmp/websmith-talks-setup.sh
+WEBSMITH_TALKS_HOME="$HOME/TRTalks" bash /tmp/websmith-talks-setup.sh
+```
+
+L’installer rinomina lo stato in `.websmith-talks`, sostituisce il launcher
+`trtalks` con `websmith-talks` e trasferisce le personalizzazioni da `trstory`
+a `story` e da `trpage` a `page`. Supporta anche la vecchia skill singola
+`trtalks`. Conserva configurazioni locali, bozze, allegati e ricevute, senza
+cambiare gli ID dei tentativi. I tentativi `trtalks-…` continuano a impedire
+invii duplicati; quelli nuovi usano `websmith-talks-…`.
+
+I backup precedenti passano in `.websmith-talks/legacy-backups/`; il backup della
+migrazione è in `.websmith-talks/backups/`. Le istruzioni `AGENTS.md` generate
+dall’installer vengono aggiornate; quelle personalizzate restano intatte.
+Conflitti fra skill o regole locali interrompono la migrazione senza sovrascriverli.
+
+La variabile dell’installer è `WEBSMITH_TALKS_HOME` (con `TRTALKS_HOME` come
+compatibilità); per una distribuzione alternativa usare `WEBSMITH_TALKS_RELEASE_URL`.
+Il vecchio comando `trtalks update` non comprende il nuovo formato: il primo
+passaggio richiede il bootstrap nuovo oppure `runtime/manage.py install --upgrade`
+con il nuovo archivio e il relativo checksum.
+
+La configurazione per un solo sito e l’indipendenza da TechReloaded sono passi
+successivi: destinatario e contenuto delle conversazioni restano quelli attuali.
 
 ## Sviluppo
 
@@ -110,6 +142,6 @@ I test usano risposte sintetiche dichiarate e non costituiscono una prova di
 invio reale né una prova della voce nell’app.
 
 Quando l’ambiente protegge `.agents/`, questa installazione usa le skill
-aggiornate dentro `.trtalks/app/skills/`, indicate da `AGENTS.md` e da `paths`.
+aggiornate dentro `.websmith-talks/app/skills/`, indicate da `AGENTS.md` e da `paths`.
 La copia precedente protetta resta intatta; i futuri aggiornamenti mantengono
 questa modalità e la stessa verifica del manifest.

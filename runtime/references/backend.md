@@ -12,7 +12,7 @@ dall'agente con la chiamata reale al tool Gmail, nello stesso flusso.
 
 ## Configurazione
 
-`.trtalks/config.local.json` contiene `schema:2`, `transport:"gmail"`,
+`.websmith-talks/config.local.json` contiene `schema:2`, `transport:"gmail"`,
 `recipient` (inizialmente `trtalks@techreloaded.it`), `sender_name`, `reply_to`
 e `send_enabled` (inizialmente `true`). Ogni documento richiede comunque la
 propria autorizzazione alla consegna. Le preferenze esistenti restano valide.
@@ -20,7 +20,7 @@ Il collegamento Google è gestito dall'app: nessun host, porta, password, token
 locale o procedura `init`. L'aggiornamento elimina i precedenti parametri di
 connessione, conservando destinatario, preferenze e ricevute.
 
-`trtalks status` mostra le impostazioni locali senza rete e senza dichiarare
+`websmith-talks status` mostra le impostazioni locali senza rete e senza dichiarare
 verificato il collegamento Gmail. L'agente controlla la disponibilità di
 `send_email`; per provare l'account senza email usa `get_profile` di Gmail.
 `probe` crea solo un Markdown fittizio locale.
@@ -40,7 +40,7 @@ come sostituto dell'allegato e non convertire il resoconto nel solo corpo email.
 Se manca un canale file compatibile, indicare il blocco e conservare il documento.
 
 Dopo `send_email`, salvare la risposta JSON effettiva e passarla a
-`trtalks record-result REQUEST_ID --receipt /percorso/risposta.json`.
+`websmith-talks record-result REQUEST_ID --receipt /percorso/risposta.json`.
 Un risultato con `id` e senza errore registra `accepted` e l'ID Gmail.
 Una risposta d'errore o priva di ID registra `uncertain`. Una conferma di Gmail
 non dimostra la ricezione nella casella del destinatario.

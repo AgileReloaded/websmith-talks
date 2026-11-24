@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "renames": {"trtalks": "trstory"},
+  "renames": {"trtalks": "story", "trstory": "story", "trpage": "page"},
   "skills": [
     {
-      "id": "trstory",
-      "display_name": "TRStory",
+      "id": "story",
+      "display_name": "Story",
       "description": "Raccoglie case histories e prepara resoconti per le Stories TechReloaded.",
       "files": [
         "SKILL.md",
@@ -15,8 +15,8 @@
       ]
     },
     {
-      "id": "trpage",
-      "display_name": "TRPage",
+      "id": "page",
+      "display_name": "Page",
       "description": "Prepara una pagina web con contenuti, hero, CTA, template, posizione e link.",
       "files": [
         "SKILL.md",

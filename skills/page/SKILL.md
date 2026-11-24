@@ -1,9 +1,9 @@
 ---
-name: trpage
-description: Intervistare una persona per progettare e scrivere una pagina web comune, raccogliendo scopo, destinatari, titolo, abstract, contenuto, CTA, template, hero, posizione e link. Usare quando viene chiesta TRPage o una conversazione per una pagina istituzionale, di servizio, di presentazione o informativa; per case histories e Stories usare TRStory.
+name: page
+description: Intervistare una persona per progettare e scrivere una pagina web comune, raccogliendo scopo, destinatari, titolo, abstract, contenuto, CTA, template, hero, posizione e link. Usare quando viene chiesta Page o una conversazione per una pagina istituzionale, di servizio, di presentazione o informativa; per case histories e Stories usare Story.
 ---
 
-# TRPage
+# Page
 
 Condurre una conversazione e produrre un Markdown con la bozza della pagina e
 le indicazioni per realizzarla. Usare la lingua della persona, salvo diversa
@@ -16,13 +16,13 @@ Leggere [references/domande.md](references/domande.md) per la traccia e
 [references/regole-pagina.md](references/regole-pagina.md) per l'output. Usare
 [assets/pagina.md](assets/pagina.md) come struttura del documento finale.
 Leggere gli eventuali corrispondenti `*.local.md` accanto alle basi e sotto
-`.trtalks/overrides/trpage/` del progetto: integrano le istruzioni e prevalgono
+`.websmith-talks/overrides/page/` del progetto: integrano le istruzioni e prevalgono
 sulle scelte che modificano. Gli aggiornamenti li conservano.
 
 Se sono disponibili nel progetto, consultare le regole editoriali e di tono,
 il catalogo dei template e la struttura del sito. Rispettare gli override locali.
 Usare queste fonti per evitare richieste già soddisfatte; non supporre che il
-progetto TRTalks contenga anche i sorgenti del sito. Se mancano, raccogliere le
+progetto websmith-talks contenga anche i sorgenti del sito. Se mancano, raccogliere le
 indicazioni dalla persona e distinguere scelte, proposte e dati da verificare.
 
 ## Conversazione
@@ -62,7 +62,7 @@ Riepilogare le scelte e mostrare il documento completo. Chiedere con una sola
 domanda quali correzioni apportare, se la persona non ha già richiesto di
 concludere. Applicare le correzioni senza riavviare l'intervista.
 
-Salvare in UTF-8 sotto `drafts/pagina-<slug>.md` nella radice del progetto TRTalks,
+Salvare in UTF-8 sotto `drafts/pagina-<slug>.md` nella radice del progetto websmith-talks,
 con nome ASCII composto da lettere, numeri e trattini. Il percorso della bozza
 locale è distinto dall'URL della futura pagina. Creare il file in modalità
 esclusiva; se esiste, usare un suffisso numerico senza sovrascriverlo. Anche per
@@ -74,8 +74,8 @@ integrale della versione salvata e un collegamento al file effettivo.
 La normale conclusione è il salvataggio locale del documento. Se viene chiesto
 di consegnarlo alla redazione, leggere le istruzioni condivise
 `runtime/references/invio.md` e gli eventuali corrispondenti `*.local.md`.
-Nel progetto installato il runtime si trova in `.trtalks/app/`; nel sorgente
-sotto la radice. Il launcher `trtalks paths` mostra i percorsi effettivi.
+Nel progetto installato il runtime si trova in `.websmith-talks/app/`; nel sorgente
+sotto la radice. Il launcher `websmith-talks paths` mostra i percorsi effettivi.
 
 Usare il connettore Gmail e il flusso comune solo con l'autorizzazione per
 quella versione e il destinatario effettivo. Se già ricevuta, non richiederla.

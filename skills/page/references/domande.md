@@ -1,4 +1,4 @@
-# Traccia delle domande TRPage
+# Traccia delle domande Page
 
 Usare i punti come temi da coprire, non come un modulo da mostrare interamente.
 Fare solo la domanda principale del tema corrente e attendere. Usare le domande

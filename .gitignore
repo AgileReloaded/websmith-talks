@@ -6,4 +6,5 @@ config.local.json
 *.local.md
 .DS_Store
 dist/
+.websmith-talks/
 .trtalks/

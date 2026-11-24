@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the reviewed TRTalks source and release from a normal local terminal."""
+"""Publish the reviewed websmith-talks source and release from a normal local terminal."""
 import argparse
 import json
 from pathlib import Path
@@ -27,9 +27,9 @@ def remote_name(value):
 
 
 def verify_assets(repo, tag):
-    with tempfile.TemporaryDirectory(prefix="trtalks-release-check-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="websmith-talks-release-check-") as temporary:
         args = ["gh", "release", "download", tag, "--repo", repo, "--dir", temporary]
-        names = ("trtalks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html")
+        names = ("websmith-talks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html")
         for name in names:
             args.extend(["--pattern", name])
         command(args)
@@ -76,19 +76,19 @@ def publish(repo, dry_run=False):
         command(["git", "remote", "add", "origin", "https://github.com/" + repo + ".git"])
     command(["git", "add", "--", *SOURCE_PATHS])
     if command(["git", "diff", "--cached", "--quiet"], check=False).returncode:
-        command(["git", "commit", "-m", "Prepare TRTalks " + metadata["version"]])
+        command(["git", "commit", "-m", "Prepare websmith-talks " + metadata["version"]])
     if command(["git", "status", "--porcelain"]).stdout.strip():
         raise RuntimeError("Restano file non salvati fuori dai sorgenti previsti; pubblicazione interrotta")
     head = command(["git", "rev-parse", "HEAD"]).stdout.strip()
     existing_tag = command(["git", "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}"], check=False)
     if existing_tag.returncode:
-        command(["git", "tag", "-a", tag, "-m", "TRTalks " + metadata["version"]])
+        command(["git", "tag", "-a", tag, "-m", "websmith-talks " + metadata["version"]])
     elif existing_tag.stdout.strip() != head:
         raise RuntimeError("Il tag esiste su un'altra revisione: incrementare VERSION, senza forzare il tag")
     branch = command(["git", "symbolic-ref", "--short", "HEAD"]).stdout.strip()
     if missing:
         command(["gh", "repo", "create", repo, "--public", "--description",
-                 "TRTalks: skill locali Codex per conversazioni TechReloaded"])
+                 "websmith-talks: skill locali Codex per conversazioni TechReloaded"])
     # Credentials are supplied by gh for this invocation, without changing global Git settings.
     git_push = ["git", "-c", "credential.helper=", "-c", "credential.https://github.com.helper=!gh auth git-credential", "push"]
     command([*git_push, "-u", "origin", "HEAD:refs/heads/" + branch])
@@ -98,10 +98,10 @@ def publish(repo, dry_run=False):
         if "HTTP 404" not in release.stderr:
             raise RuntimeError(release.stderr.strip())
         notes = ROOT / "dist/release-notes.md"
-        notes.write_text("TRTalks " + metadata["version"] + "\n\nTRStory per case histories, catalogo di skill, runtime comune, installazione e aggiornamento con checksum.\n\nInvio SMTP locale con credenziali escluse dal pacchetto e conservate negli aggiornamenti. Retry incerti bloccati. Invio disabilitato alla prima installazione; configurare la password localmente. Voce e flusso completo da collaudare.\n", encoding="utf-8")
-        assets = [str(ROOT / "dist" / name) for name in ("trtalks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html")]
+        notes.write_text("websmith-talks " + metadata["version"] + "\n\nSkill story e page, comando websmith-talks e stato in .websmith-talks. Migrazione delle installazioni TRTalks con il nuovo installer, conservando configurazione, documenti, regole locali e ricevute.\n\nConsegna tramite il connettore Gmail dell’app, senza credenziali di posta locali. Installazione HTTPS con checksum e aggiornamento conservativo. Voce e riconoscimento delle skill da collaudare nell’app.\n", encoding="utf-8")
+        assets = [str(ROOT / "dist" / name) for name in ("websmith-talks.zip", "SHA256SUMS", "release.json", "setup.sh", "index.html")]
         command(["gh", "release", "create", tag, *assets, "--repo", repo, "--verify-tag", "--draft",
-                 "--title", "TRTalks " + metadata["version"], "--notes-file", str(notes)])
+                 "--title", "websmith-talks " + metadata["version"], "--notes-file", str(notes)])
         draft = True
     else:
         draft = json.loads(release.stdout)["draft"]
@@ -117,7 +117,7 @@ def publish(repo, dry_run=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repo", default="AgileReloaded/TRTalks")
+    parser.add_argument("--repo", default="AgileReloaded/websmith-talks")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     try:

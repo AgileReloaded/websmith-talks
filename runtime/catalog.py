@@ -4,10 +4,11 @@ from pathlib import PurePosixPath
 import re
 
 RUNTIME_FILES = {
-    "runtime/catalog.py", "runtime/common.py", "runtime/manage.py", "runtime/trtalks.py",
+    "runtime/catalog.py", "runtime/common.py", "runtime/manage.py", "runtime/websmith_talks.py",
     "runtime/send_document.py", "runtime/delivery.py",
     "runtime/references/backend.md", "runtime/references/invio.md",
 }
+LEGACY_RUNTIME_FILES = (RUNTIME_FILES - {"runtime/websmith_talks.py"}) | {"runtime/trtalks.py"}
 
 
 def safe_relative(name):
@@ -32,7 +33,7 @@ def validate_catalog(value):
             raise ValueError("Voce del catalogo non valida")
         key = entry.get("id")
         if (not isinstance(key, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", key)
-                or len(key) > 64 or key in seen or key == "trtalks"):
+                or len(key) > 64 or key in seen or key in ("websmith-talks", "trtalks")):
             raise ValueError("ID skill duplicato, riservato o non valido: " + str(key))
         seen.add(key)
         for field in ("display_name", "description"):
@@ -45,10 +46,11 @@ def validate_catalog(value):
         for name in files:
             safe_relative(name)
     renames = value.get("renames", {})
-    if not isinstance(renames, dict) or len(set(renames.values())) != len(renames):
+    if not isinstance(renames, dict):
         raise ValueError("Mappa delle rinomine non valida")
     for old, new in renames.items():
-        if (not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", old)
+        if (not isinstance(old, str) or not isinstance(new, str)
+                or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", old)
                 or old in seen or new not in seen):
             raise ValueError("Rinomina non valida nel catalogo")
     return value
@@ -58,8 +60,9 @@ def load_catalog(app):
     return validate_catalog(json.loads((app / "conversations.json").read_text(encoding="utf-8")))
 
 
-def required_files(catalog):
-    result = RUNTIME_FILES | {"conversations.json"}
+def required_files(catalog, application="websmith-talks"):
+    runtime = LEGACY_RUNTIME_FILES if application == "trtalks" else RUNTIME_FILES
+    result = runtime | {"conversations.json"}
     for entry in validate_catalog(catalog)["skills"]:
         result |= {"skills/" + entry["id"] + "/" + name for name in entry["files"]}
     return result
