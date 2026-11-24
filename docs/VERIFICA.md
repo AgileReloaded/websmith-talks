@@ -16,6 +16,8 @@ verificate e conservazione dei comandi preesistenti personalizzati.
 Il percorso predefinito è verificato anche dal checkout: usa solo le release,
 ignora eventuali sorgenti precedenti e non ripiega sullo sviluppo in caso di
 errore di rete. L'uso locale richiede `--source` esplicito.
+Il test dei prompt usa un flusso di testo con buffer: prima di ogni lettura
+controlla che la domanda sia già visibile, anche senza un carattere di nuova riga.
 
 I risultati Gmail nei test sono sintetici; nessuna email viene inviata.
 `websmith-talks status` legge solo la configurazione. Per una verifica reale senza email

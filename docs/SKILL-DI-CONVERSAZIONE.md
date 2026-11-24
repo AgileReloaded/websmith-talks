@@ -2,7 +2,7 @@
 
 websmith-talks è l’applicazione; ogni tipologia di conversazione è una skill distinta.
 **Story** raccoglie case histories e si invoca con `$story`; **Page** prepara
-pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a2.
+pagine web e si invoca con `$page`. La versione di sviluppo è 0.8.0a3.
 Le skill precedenti `trstory` e `trpage` diventano `story` e `page`.
 I progetti esterni TRInterview/TRConversations non sono stati rinominati.
 
@@ -109,7 +109,7 @@ launcher, skill, configurazione e istruzioni precedenti.
 
 ## Verifiche e limiti
 
-Il runtime 0.8.0a2 prepara la consegna per `send_email` del connettore Gmail.
+Il runtime 0.8.0a3 prepara la consegna per `send_email` del connettore Gmail.
 Il collegamento Google è gestito dall’app; nessuna credenziale di posta resta
 nella configurazione websmith-talks. Le skill leggono il destinatario effettivo.
 Le nuove installazioni hanno il destinatario vuoto: la consegna richiede

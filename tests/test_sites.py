@@ -175,6 +175,29 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(manage.main(arguments), 0)
             terminal.assert_not_called()
 
+    def test_each_question_is_visible_before_the_installer_waits_for_its_answer(self):
+        archive = self.root.parent / "package.zip"
+        archive.write_bytes(self.raw)
+        arguments = ["install", "--root", str(self.root), "--archive", str(archive),
+                     "--sha256", self.sha, "--interactive"]
+        terminal_output = io.BytesIO()
+        writer = io.TextIOWrapper(terminal_output, encoding="utf-8", line_buffering=True)
+        reader = mock.MagicMock()
+        reader.__enter__.return_value = reader
+        exchanges = iter([
+            ("Identificativo del sito da usare (site.id di Websmith): ", "example\n"),
+            ("Nome del sito [example]: ", "Example website\n"),
+        ])
+        def answer_only_after_visible_question():
+            question, answer = next(exchanges)
+            self.assertTrue(terminal_output.getvalue().decode("utf-8").endswith(question),
+                            "Installer waits for input before displaying the question")
+            return answer
+        reader.readline.side_effect = answer_only_after_visible_question
+        with mock.patch("manage.open", create=True, side_effect=[reader, writer]), redirect_stdout(io.StringIO()):
+            self.assertEqual(manage.main(arguments), 0)
+        self.assertEqual(load_config(self.root)["site"]["name"], "Example website")
+
     def test_interactive_setup_asks_for_name_even_when_id_is_already_supplied(self):
         archive = self.root.parent / "package.zip"
         archive.write_bytes(self.raw)

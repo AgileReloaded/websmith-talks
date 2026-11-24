@@ -640,12 +640,14 @@ def main(argv=None):
                     with open("/dev/tty", "r", encoding="utf-8") as reader, open("/dev/tty", "w", encoding="utf-8", buffering=1) as writer:
                         if args.site_id is None:
                             writer.write("Identificativo del sito da usare (site.id di Websmith): ")
+                            writer.flush()
                             answer = reader.readline()
                             if not answer:
                                 raise ValueError("Installazione interrotta: identificativo del sito non ricevuto")
                             args.site_id = answer.strip()
                         if args.site_name is None:
                             writer.write("Nome del sito [" + args.site_id + "]: ")
+                            writer.flush()
                             answer = reader.readline()
                             if not answer:
                                 raise ValueError("Installazione interrotta: nome del sito non ricevuto")

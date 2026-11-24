@@ -8,7 +8,7 @@ domanda alla volta e producono un documento locale.
 Per una consegna autorizzata alla redazione, l’agente usa **send_email del
 connettore Gmail** collegato alla chat.
 
-Versione di sviluppo **0.8.0a2**: comandi `websmith-talks install` e
+Versione di sviluppo **0.8.0a3**: comandi `websmith-talks install` e
 `websmith-talks update`, un sito per installazione e tag email
 `[websmith:site.id]` compatibile con Websmith. Il comando è `websmith-talks`,
 le skill sono `story` e `page` e lo stato è in `.websmith-talks`.
