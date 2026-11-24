@@ -1,0 +1,4 @@
+interface:
+  display_name: "TRStory"
+  short_description: "Raccoglie case histories per le Stories TechReloaded"
+  default_prompt: "Usa $trstory per raccogliere un caso TechReloaded, una domanda alla volta."

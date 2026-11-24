@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "renames": {"trtalks": "trstory"},
+  "skills": [
+    {
+      "id": "trstory",
+      "display_name": "TRStory",
+      "description": "Raccoglie case histories e prepara resoconti per le Stories TechReloaded.",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "references/domande.md",
+        "references/regole-resoconto.md",
+        "assets/resoconto.md"
+      ]
+    },
+    {
+      "id": "trpage",
+      "display_name": "TRPage",
+      "description": "Prepara una pagina web con contenuti, hero, CTA, template, posizione e link.",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "references/domande.md",
+        "references/regole-pagina.md",
+        "assets/pagina.md"
+      ]
+    }
+  ]
+}
